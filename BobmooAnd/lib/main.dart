@@ -18,7 +18,7 @@ class BobMooApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '밥묵자',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color.fromRGBO(204, 221, 228, 1),

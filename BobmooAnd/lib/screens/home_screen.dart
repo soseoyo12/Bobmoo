@@ -1,3 +1,6 @@
+import 'package:bobmoo/models/menu_model.dart';
+import 'package:bobmoo/services/menu_service.dart';
+import 'package:bobmoo/widgets/cafeteria_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -14,6 +17,38 @@ class _MyHomePageState extends State<MyHomePage> {
   // 선택한 날짜 저장할 상태 변수수
   DateTime _selectedDate = DateTime.now();
 
+  final MenuService _menuService = MenuService();
+  bool _isLoading = true;
+  MenuResponse? _menuResponse;
+  String? _errorMessage;
+
+  // 화면이 처음 나타날 때 데이터 불러오기
+  @override
+  void initState() {
+    super.initState();
+    _fetchMenu(_selectedDate); // 초기 날짜(시작 날짜)로 데이터 로드
+  }
+
+  Future<void> _fetchMenu(DateTime date) async {
+    setState(() {
+      _isLoading = true; // 로딩 시작
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await _menuService.getMenu(date);
+      setState(() {
+        _menuResponse = response;
+        _isLoading = false; // 로딩 끝
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = '식단 정보를 불러오는데 실패했습니다.';
+        _isLoading = false; // 로딩 끝 (에러)
+      });
+    }
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -25,7 +60,32 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _selectedDate = picked; // 날짜가 선택되면 상태 업데이트
       });
+      _fetchMenu(_selectedDate);
     }
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      // 로딩 상태
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_errorMessage != null) {
+      // 에러 메시지 발생
+      return Center(child: Text(_errorMessage!));
+    }
+    if (_menuResponse == null || _menuResponse!.cafeterias.isEmpty) {
+      // menuResponse가 없거나 모든 식당이 비었을때.
+      return const Center(child: Text("등록된 식단 정보가 없습니다."));
+    }
+
+    // 성공 시 식당 목록을 보여주는 ListView
+    return ListView.builder(
+      itemCount: _menuResponse!.cafeterias.length,
+      itemBuilder: (context, index) {
+        final cafeteria = _menuResponse!.cafeterias[index];
+        return CafeteriaCard(cafeteria: cafeteria);
+      },
+    );
   }
 
   @override
@@ -86,14 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-          ],
-        ),
-      ),
+      body: _buildBody(),
     );
   }
 }
