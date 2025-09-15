@@ -61,14 +61,13 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.calendar_today, size: 16, color: Colors.black54),
                   const SizedBox(width: 4),
                   Text(
                     DateFormat(
                       'yyyy년 MM월 dd일 (E)',
                       'ko_KR',
                     ).format(_selectedDate), // 날짜 포맷
-                    style: const TextStyle(fontSize: 16, color: Colors.black87),
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
                 ],
               ),
