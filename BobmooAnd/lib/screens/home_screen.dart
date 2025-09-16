@@ -176,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             // 앱의 왼쪽 위
             Text(
-              "인하대학교",
+              widget.title,
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 25),
             ),
             SizedBox(height: 4),

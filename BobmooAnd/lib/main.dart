@@ -35,7 +35,7 @@ class BobMooApp extends StatelessWidget {
         Locale('ko', 'KR'),
         // Locale('en', 'US'), // 지원할 언어 목록에 한국어와 영어를 나중에
       ],
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: '인하대학교'),
     );
   }
 }
