@@ -1,6 +1,7 @@
+import 'package:bobmoo/models/meal_by_cafeteria.dart';
 import 'package:bobmoo/models/menu_model.dart';
 import 'package:bobmoo/services/menu_service.dart';
-import 'package:bobmoo/widgets/cafeteria_card.dart';
+import 'package:bobmoo/widgets/time_grouped_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -14,13 +15,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // 선택한 날짜 저장할 상태 변수수
+  // 선택한 날짜 저장할 상태 변수
   DateTime _selectedDate = DateTime.now();
 
+  // API 기본 세팅 변수
   final MenuService _menuService = MenuService();
+
+  // 로딩중인지 여부
   bool _isLoading = true;
+
+  // API 응답 저장 변수
   MenuResponse? _menuResponse;
+
+  // 에러메시지 변수
   String? _errorMessage;
+
+  // 시간대별로 그룹화된 데이터를 담을 새로운 Map 변수
+  Map<String, List<MealByCafeteria>> _groupedMeals = {};
 
   // 화면이 처음 나타날 때 데이터 불러오기
   @override
@@ -36,16 +47,21 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     try {
+      // _menuService를 통해 'date' 날짜에 해당하는 식단을 불러옴.
       final response = await _menuService.getMenu(date);
-      setState(() {
-        _menuResponse = response;
-        _isLoading = false; // 로딩 끝
-      });
+
+      // 응답 저장
+      _menuResponse = response;
+
+      // 시간대별로 구조 변경
+      _groupMealsByTime(response);
+
+      _isLoading = false; // 로딩 끝
     } catch (e) {
-      setState(() {
-        _errorMessage = '식단 정보를 불러오는데 실패했습니다.';
-        _isLoading = false; // 로딩 끝 (에러)
-      });
+      _errorMessage = '식단 정보를 불러오는데 실패했습니다.';
+      _isLoading = false; // 로딩 끝 (에러)
+    } finally {
+      setState(() {});
     }
   }
 
@@ -64,6 +80,53 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void _groupMealsByTime(MenuResponse response) {
+    // 임시로 사용할 리스트들을 만듭니다.
+    final List<MealByCafeteria> breakfastMenus = [];
+    final List<MealByCafeteria> lunchMenus = [];
+    final List<MealByCafeteria> dinnerMenus = [];
+
+    // API 응답에 있는 모든 식당을 순회합니다.
+    for (var cafeteria in response.cafeterias) {
+      // 아침 메뉴가 있다면 breakfastMenus 리스트에 추가
+      if (cafeteria.meals.breakfast.isNotEmpty) {
+        breakfastMenus.add(
+          MealByCafeteria(
+            cafeteriaName: cafeteria.name,
+            meals: cafeteria.meals.breakfast,
+          ),
+        );
+      }
+      // 점심 메뉴가 있다면 lunchMenus 리스트에 추가
+      if (cafeteria.meals.lunch.isNotEmpty) {
+        lunchMenus.add(
+          MealByCafeteria(
+            cafeteriaName: cafeteria.name,
+            meals: cafeteria.meals.lunch,
+          ),
+        );
+      }
+      // 저녁 메뉴가 있다면 dinnerMenus 리스트에 추가
+      if (cafeteria.meals.dinner.isNotEmpty) {
+        dinnerMenus.add(
+          MealByCafeteria(
+            cafeteriaName: cafeteria.name,
+            meals: cafeteria.meals.dinner,
+          ),
+        );
+      }
+    }
+
+    // 최종적으로 상태 변수에 데이터를 채워넣습니다.
+    setState(() {
+      _groupedMeals = {
+        '아침': breakfastMenus,
+        '점심': lunchMenus,
+        '저녁': dinnerMenus,
+      };
+    });
+  }
+
   Widget _buildBody() {
     if (_isLoading) {
       // 로딩 상태
@@ -78,12 +141,25 @@ class _MyHomePageState extends State<MyHomePage> {
       return const Center(child: Text("등록된 식단 정보가 없습니다."));
     }
 
+    // 그룹화된 맵의 키('아침', '점심', '저녁')들로 리스트를 만듭니다.
+    final mealTypes = _groupedMeals.keys.toList();
+
     // 성공 시 식당 목록을 보여주는 ListView
     return ListView.builder(
-      itemCount: _menuResponse!.cafeterias.length,
+      itemCount: mealTypes.length,
       itemBuilder: (context, index) {
-        final cafeteria = _menuResponse!.cafeterias[index];
-        return CafeteriaCard(cafeteria: cafeteria);
+        final mealType = mealTypes[index];
+        final mealsByCafeteria = _groupedMeals[mealType]; // '아침', '점심', '저녁'
+
+        // 만약 해당 시간대에 메뉴가 하나도 없으면 그 섹션은 그리지 않습니다.
+        if (mealsByCafeteria == null || mealsByCafeteria.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return TimeGroupedCard(
+          title: mealType,
+          mealData: mealsByCafeteria,
+        );
       },
     );
   }
