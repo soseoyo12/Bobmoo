@@ -1,5 +1,6 @@
 import 'package:bobmoo/models/meal_by_cafeteria.dart';
 import 'package:bobmoo/models/menu_model.dart';
+import 'package:bobmoo/screens/settings.screen.dart';
 import 'package:bobmoo/services/menu_service.dart';
 import 'package:bobmoo/widgets/time_grouped_card.dart';
 import 'package:flutter/material.dart';
@@ -215,9 +216,29 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: const Icon(Icons.settings), // 설정 아이콘
             tooltip: '설정', // 풍선 도움말
             onPressed: () {
-              // 버튼을 눌렀을 때 실행될 코드
-              // TODO: 설정버튼
-              // 예: Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      const SettingsScreen(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
+                        const end = Offset.zero; // 원래 위치로 이동
+                        const curve = Curves.ease; // 부드러운 전환 효과
+
+                        var tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        var offsetAnimation = animation.drive(tween);
+
+                        return SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        );
+                      },
+                ),
+              );
             },
           ),
         ],
