@@ -1,11 +1,13 @@
 import 'package:bobmoo/models/meal_by_cafeteria.dart';
 import 'package:bobmoo/models/menu_model.dart';
 import 'package:bobmoo/widgets/meal_item_row.dart';
+import 'package:bobmoo/widgets/open_status_badge.dart';
 import 'package:flutter/material.dart';
 
 class CafeteriaMenuColumn extends StatelessWidget {
   final MealByCafeteria data;
   final String mealType;
+
   const CafeteriaMenuColumn({
     super.key,
     required this.data,
@@ -25,7 +27,7 @@ class CafeteriaMenuColumn extends StatelessWidget {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             SizedBox(width: 8),
-            Flexible(
+            Expanded(
               child: Text(
                 _hoursTextForMealType(data.hours, mealType),
                 style: const TextStyle(
@@ -36,6 +38,8 @@ class CafeteriaMenuColumn extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            SizedBox(width: 8),
+            OpenStatusBadge(hours: data.hours, mealType: mealType),
           ],
         ),
         const SizedBox(height: 6),
