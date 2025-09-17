@@ -3,6 +3,7 @@ import 'package:bobmoo/models/menu_model.dart';
 import 'package:bobmoo/screens/settings.screen.dart';
 import 'package:bobmoo/services/menu_service.dart';
 import 'package:bobmoo/widgets/time_grouped_card.dart';
+import 'package:bobmoo/utils/hours_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -131,6 +132,75 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  /// Hours 문자열을 파싱하여 가장 늦은 종료 시각을 구합니다.
+  DateTime? _latestEndFromHoursString(String s, DateTime now) {
+    if (s.trim().isEmpty) return null;
+    final ranges = parseTimeRanges(s, now);
+    if (ranges.isEmpty) return null;
+    return ranges.map((r) => r.$2).reduce((a, b) => a.isAfter(b) ? a : b);
+  }
+
+  /// 선택된 날짜의 운영시간(Hours)을 사용해 동적 경계를 계산한 뒤 섹션 순서를 반환합니다.
+  /// 기준:
+  /// - now < 아침 종료최대 → [아침, 점심, 저녁]
+  /// - 아침 종료최대 ≤ now < 점심 종료최대 → [점심, 저녁, 아침]
+  /// - 그 외 → [저녁, 아침, 점심]
+  List<String> _orderedMealTypesByDynamicHours(List<String> existingTypes) {
+    if (existingTypes.isEmpty) return existingTypes;
+    final response = _menuResponse;
+    if (response == null || response.cafeterias.isEmpty) return existingTypes;
+
+    final now = DateTime.now();
+
+    DateTime? breakfastMaxEnd;
+    DateTime? lunchMaxEnd;
+    DateTime? dinnerMaxEnd;
+
+    for (final c in response.cafeterias) {
+      final bEnd = _latestEndFromHoursString(c.hours.breakfast, now);
+      if (bEnd != null) {
+        breakfastMaxEnd =
+            (breakfastMaxEnd == null || bEnd.isAfter(breakfastMaxEnd))
+            ? bEnd
+            : breakfastMaxEnd;
+      }
+      final lEnd = _latestEndFromHoursString(c.hours.lunch, now);
+      if (lEnd != null) {
+        lunchMaxEnd = (lunchMaxEnd == null || lEnd.isAfter(lunchMaxEnd))
+            ? lEnd
+            : lunchMaxEnd;
+      }
+      final dEnd = _latestEndFromHoursString(c.hours.dinner, now);
+      if (dEnd != null) {
+        dinnerMaxEnd = (dinnerMaxEnd == null || dEnd.isAfter(dinnerMaxEnd))
+            ? dEnd
+            : dinnerMaxEnd;
+      }
+    }
+
+    List<String> desiredOrder;
+    if (breakfastMaxEnd != null && now.isBefore(breakfastMaxEnd)) {
+      desiredOrder = ['아침', '점심', '저녁'];
+    } else if (lunchMaxEnd != null && now.isBefore(lunchMaxEnd)) {
+      desiredOrder = ['점심', '저녁', '아침'];
+    } else if (dinnerMaxEnd != null && now.isBefore(dinnerMaxEnd)) {
+      desiredOrder = ['저녁', '아침', '점심'];
+    } else {
+      // 모든 저녁 식당의 운영이 종료된 이후에는 다음 날 아침을 우선으로 보여줍니다.
+      desiredOrder = ['아침', '점심', '저녁'];
+    }
+
+    // existingTypes에 있는 키만 유지하고, 누락된 나머지는 뒤에 붙입니다.
+    final ordered = <String>[];
+    for (final t in desiredOrder) {
+      if (existingTypes.contains(t)) ordered.add(t);
+    }
+    for (final t in existingTypes) {
+      if (!ordered.contains(t)) ordered.add(t);
+    }
+    return ordered;
+  }
+
   Widget _buildBody() {
     if (_isLoading) {
       // 로딩 상태
@@ -145,8 +215,10 @@ class _MyHomePageState extends State<MyHomePage> {
       return const Center(child: Text("등록된 식단 정보가 없습니다."));
     }
 
-    // 그룹화된 맵의 키('아침', '점심', '저녁')들로 리스트를 만듭니다.
-    final mealTypes = _groupedMeals.keys.toList();
+    // 그룹화된 맵의 키('아침', '점심', '저녁')들로 리스트를 만든 후, 식당 운영시간 기반 동적 경계로 정렬합니다.
+    final mealTypes = _orderedMealTypesByDynamicHours(
+      _groupedMeals.keys.toList(),
+    );
 
     // 성공 시 식당 목록을 보여주는 ListView
     return ListView.builder(
