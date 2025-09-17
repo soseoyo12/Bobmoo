@@ -52,7 +52,10 @@ class TimeGroupedCard extends StatelessWidget {
                 // 각 인덱스에 해당하는 식당 메뉴 위젯을 반환
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: CafeteriaMenuColumn(data: mealData[index]),
+                  child: CafeteriaMenuColumn(
+                    data: mealData[index],
+                    mealType: title,
+                  ),
                 );
               },
               separatorBuilder: (BuildContext context, int index) {

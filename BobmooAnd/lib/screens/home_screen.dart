@@ -94,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
         breakfastMenus.add(
           MealByCafeteria(
             cafeteriaName: cafeteria.name,
+            hours: cafeteria.hours,
             meals: cafeteria.meals.breakfast,
           ),
         );
@@ -103,6 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
         lunchMenus.add(
           MealByCafeteria(
             cafeteriaName: cafeteria.name,
+            hours: cafeteria.hours,
             meals: cafeteria.meals.lunch,
           ),
         );
@@ -112,6 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
         dinnerMenus.add(
           MealByCafeteria(
             cafeteriaName: cafeteria.name,
+            hours: cafeteria.hours,
             meals: cafeteria.meals.dinner,
           ),
         );
