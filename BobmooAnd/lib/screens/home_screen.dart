@@ -1,6 +1,5 @@
 import 'package:bobmoo/models/meal_by_cafeteria.dart';
 import 'package:bobmoo/models/menu_model.dart';
-import 'package:bobmoo/screens/settings.screen.dart';
 import 'package:bobmoo/services/menu_service.dart';
 import 'package:bobmoo/widgets/time_grouped_card.dart';
 import 'package:bobmoo/utils/hours_parser.dart';
@@ -244,7 +243,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 80,
+        toolbarHeight: 100,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -253,7 +252,7 @@ class _MyHomePageState extends State<MyHomePage> {
             // 앱의 왼쪽 위
             Text(
               widget.title,
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 25),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 30),
             ),
             SizedBox(height: 4),
             TextButton(
@@ -279,7 +278,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       'yyyy년 MM월 dd일 (E)',
                       'ko_KR',
                     ).format(_selectedDate), // 날짜 포맷
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
                   ),
                 ],
               ),
