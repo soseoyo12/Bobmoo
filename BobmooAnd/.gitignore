@@ -66,3 +66,5 @@ ios/**/*.pbxuser
 ios/**/*.perspectivev3
 ios/**/DerivedData/
 ios/**/Icon?
+
+keystore.jks

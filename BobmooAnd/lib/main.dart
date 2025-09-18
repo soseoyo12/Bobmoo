@@ -18,6 +18,7 @@ class BobMooApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: '밥묵자',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
