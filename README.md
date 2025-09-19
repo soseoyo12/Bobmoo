@@ -13,6 +13,7 @@
 ## 저장소 구성
 - `BobmooiOS/`: iOS 앱 (SwiftUI)과 `BobMooWidget` 위젯 확장
 - `BobmooWeb/`: Next.js 기반 웹(랜딩/소개/다운로드 안내)
+- `BobmooAnd/`: Flutter 기반 Android 앱
 - `개인정보처리방침.txt`: 서비스 이용자를 위한 개인정보 처리방침
 
 ## 연락처
