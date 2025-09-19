@@ -67,4 +67,12 @@ ios/**/*.perspectivev3
 ios/**/DerivedData/
 ios/**/Icon?
 
+# Generated plugin registrant files
+**/ios/Flutter/Generated.xcconfig
+**/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+GeneratedPluginRegistrant.swift
+**/linux/flutter/generated_plugin_registrant.*
+**/macos/Flutter/GeneratedPluginRegistrant.*
+**/windows/flutter/generated_plugin_registrant.*
+
 keystore.jks
