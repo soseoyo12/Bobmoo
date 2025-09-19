@@ -28,7 +28,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  default-flavor: dev
+  default-flavor: prod
 
   assets:
     - assets/icons/
