@@ -85,8 +85,17 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
     }
+
+    buildFeatures {
+        compose = true
+    }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    implementation(kotlin("stdlib"))
+    implementation("androidx.glance:glance-appwidget:1.1.1")
 }
