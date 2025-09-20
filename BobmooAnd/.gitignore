@@ -79,3 +79,4 @@ generated_plugins.*
 generated_plugin_registrant.*
 
 keystore.jks
+.vscode/settings.json
