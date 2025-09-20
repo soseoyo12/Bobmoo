@@ -2,6 +2,7 @@ name: bobmoo
 description: "A new Flutter project."
 publish_to: 'none'
 
+# 버전 설정 versionName+versionCode
 version: 0.1.1+3
 
 environment:

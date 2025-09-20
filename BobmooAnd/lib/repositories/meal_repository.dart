@@ -7,14 +7,23 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 
-// API 호출 실패 시 Stale 데이터를 전달하기 위한 Custom Exception
+// --- Custom Exceptions ---
+/// 네트워크 오류를 위한 Exception
+class NetworkException implements Exception {
+  final String message;
+  NetworkException({
+    this.message = "인터넷 연결을 확인해주세요.",
+  });
+}
+
+/// API 호출 실패 시 오래된(Stale) 데이터를 전달하기 위한 Exception
 class StaleDataException implements Exception {
   final List<Meal> staleData;
   final String message;
 
   StaleDataException(
     this.staleData, {
-    this.message = "API 호출에 실패하여 이전 데이터를 표시합니다.",
+    this.message = "오프라인 상태입니다. 마지막으로 저장된 정보를 표시합니다.",
   });
 }
 
@@ -53,7 +62,7 @@ class MealRepository {
           print("🚨 [API Error] API 호출 실패: $e");
         }
         // API 호출 실패 시, DB에 오래된 데이터라도 있는지 확인 후 반환
-        final staleData = await _fetchFromDb(targetDate);
+        final staleData = await fetchFromDb(targetDate);
         if (staleData.isNotEmpty) {
           throw StaleDataException(staleData);
         } else {
@@ -65,7 +74,7 @@ class MealRepository {
       if (kDebugMode) {
         print("✅ [Cache Hit] DB에서 신선한 데이터를 가져옵니다: $targetDate");
       }
-      return await _fetchFromDb(targetDate);
+      return await fetchFromDb(targetDate);
     }
   }
 
@@ -81,7 +90,7 @@ class MealRepository {
   // --- Private Helper Methods ---
 
   /// DB에서 date날짜에 해당하는 데이터 반환
-  Future<List<Meal>> _fetchFromDb(DateTime date) {
+  Future<List<Meal>> fetchFromDb(DateTime date) {
     return isar.meals.filter().dateEqualTo(date).findAll();
   }
 
@@ -93,7 +102,7 @@ class MealRepository {
     await _saveMenuResponseToDb(menuResponse);
 
     // 3. DB에 저장된 데이터를 다시 조회하여 반환
-    return _fetchFromDb(date);
+    return fetchFromDb(date);
   }
 
   /// response 응답을 DB에 추가
