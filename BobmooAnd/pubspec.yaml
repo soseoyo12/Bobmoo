@@ -17,6 +17,19 @@ dependencies:
   cupertino_icons: ^1.0.8
   http: ^1.5.0
   flutter_svg: ^2.2.1
+  isar:
+    hosted:
+      name: isar
+      url: https://pub.isar-community.dev/
+    version: ^3.0.0
+
+  isar_flutter_libs:
+    hosted:
+      name: isar_flutter_libs
+      url: https://pub.isar-community.dev/
+    version: ^3.0.0
+  path_provider: ^2.1.5
+  get_it: ^8.2.0
 
 dev_dependencies:
   flutter_test:
@@ -24,6 +37,12 @@ dev_dependencies:
 
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
+  build_runner: ^2.4.13
+  isar_generator:
+    hosted:
+      name: isar_generator
+      url: https://pub.isar-community.dev/
+    version: ^3.0.0
 
 flutter:
   uses-material-design: true
