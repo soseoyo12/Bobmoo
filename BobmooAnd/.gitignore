@@ -75,4 +75,7 @@ GeneratedPluginRegistrant.swift
 **/macos/Flutter/GeneratedPluginRegistrant.*
 **/windows/flutter/generated_plugin_registrant.*
 
+generated_plugins.*
+generated_plugin_registrant.*
+
 keystore.jks
