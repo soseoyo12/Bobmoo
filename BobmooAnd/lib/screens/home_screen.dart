@@ -1,6 +1,11 @@
+import 'dart:io';
+
+import 'package:bobmoo/collections/meal_collection.dart';
+import 'package:bobmoo/collections/restaurant_collection.dart';
+import 'package:bobmoo/locator.dart';
 import 'package:bobmoo/models/meal_by_cafeteria.dart';
 import 'package:bobmoo/models/menu_model.dart';
-import 'package:bobmoo/services/menu_service.dart';
+import 'package:bobmoo/repositories/meal_repository.dart';
 import 'package:bobmoo/widgets/time_grouped_card.dart';
 import 'package:bobmoo/utils/hours_parser.dart';
 import 'package:flutter/material.dart';
@@ -16,160 +21,197 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // 선택한 날짜 저장할 상태 변수
+  // 1. 상태변구 변경: Future 객체로 데이터와 로딩 상태를 한번에 관리
+  final MealRepository _repository = locator<MealRepository>();
+  late Future<List<Meal>> _mealFuture;
+
+  /// 선택한 날짜 저장할 상태 변수
   DateTime _selectedDate = DateTime.now();
 
-  // API 기본 세팅 변수
-  final MenuService _menuService = MenuService();
-
-  // 로딩중인지 여부
-  bool _isLoading = true;
-
-  // API 응답 저장 변수
-  MenuResponse? _menuResponse;
-
-  // 에러메시지 변수
-  String? _errorMessage;
-
-  // 시간대별로 그룹화된 데이터를 담을 새로운 Map 변수
-  Map<String, List<MealByCafeteria>> _groupedMeals = {};
-
-  // 화면이 처음 나타날 때 데이터 불러오기
+  /// 화면이 처음 나타날 때 데이터 불러오기
   @override
   void initState() {
     super.initState();
-    _fetchMenu(_selectedDate); // 초기 날짜(시작 날짜)로 데이터 로드
+    // initState에서는 setState를 호출하지 않고, Future를 직접 할당합니다.
+    _mealFuture = _fetchData();
   }
 
-  Future<void> _fetchMenu(DateTime date) async {
-    setState(() {
-      _isLoading = true; // 로딩 시작
-      _errorMessage = null;
-    });
-
+  /// 데이터 로딩의 비동기 로직 함수
+  /// Repository에게 식단 데이터를 요청한다.
+  Future<List<Meal>> _fetchData() async {
     try {
-      // _menuService를 통해 'date' 날짜에 해당하는 식단을 불러옴.
-      final response = await _menuService.getMenu(date);
-
-      // 응답 저장
-      _menuResponse = response;
-
-      // 시간대별로 구조 변경
-      _groupMealsByTime(response);
-
-      _isLoading = false; // 로딩 끝
+      return await _repository.getMealsForDate(_selectedDate);
     } catch (e) {
-      _errorMessage = '식단 정보를 불러오는데 실패했습니다.';
-      _isLoading = false; // 로딩 끝 (에러)
-    } finally {
-      setState(() {});
+      if (e is StaleDataException) {
+        // 신선도가 떨어진 데이터를 취급하는 경우
+        _showStaleDataSnackbar(e);
+        // 데이터를 반환하여 화면은 정상적으로 그리도록 함
+        return e.staleData;
+      } else if (e is SocketException) {
+        // 네트워크 연결이 없는경우
+        throw NetworkException();
+      }
+      // 다른 모든 에러는 FutureBuilder로 전달
+      rethrow;
     }
   }
 
+  // StaleDataException 발생 시 SnackBar를 띄우는 헬퍼 함수
+  void _showStaleDataSnackbar(StaleDataException e) {
+    // SnackBar는 build가 완료된 후에 띄워야 하므로 addPostFrameCallback 사용
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        // 위젯이 화면에 아직 있는지 확인
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.message,
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: Colors.orange.shade700,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    });
+  }
+
+  // 날짜 변경 시에는 setState로 Future를 교체해줍니다.
+  void _loadMeals() {
+    setState(() {
+      _mealFuture = _fetchData();
+    });
+  }
+
+  // 3. 새로고침 함수 추가
+  /// Pull-to-Refresh(당겨서 새로고침)을 위한 새로고침 함수
+  Future<void> _refreshMeals() async {
+    setState(() {
+      // catchError 내부를 async로 만들어 await를 사용할 수 있게 합니다.
+      _mealFuture = _repository.forceRefreshMeals(_selectedDate).catchError((
+        e,
+      ) async {
+        // 1. API 호출이 실패하면 (SocketException 등)
+        if (e is SocketException) {
+          // 2. 로컬 DB에 저장된 데이터라도 있는지 확인합니다.
+          final localData = await _repository.fetchFromDb(_selectedDate);
+          if (localData.isNotEmpty) {
+            // 3a. 로컬 데이터가 있으면, SnackBar를 띄우고 그 데이터를 반환합니다.
+            _showStaleDataSnackbar(
+              StaleDataException(
+                localData,
+                message: "새로고침에 실패했습니다. 오프라인 정보를 표시합니다.",
+              ),
+            );
+            return localData;
+          }
+        }
+        // 3b. 로컬 데이터조차 없거나 다른 종류의 에러이면, 에러 화면을 보여줍니다.
+        throw NetworkException();
+      });
+    });
+  }
+
+  // 4. 날짜 선택 함수 수정
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate, // 초기 선택된 날짜
-      firstDate: DateTime(2020), // 선택 가능한 시작 날짜
-      lastDate: DateTime(2030), // 선택 가능한 마지막 날짜
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
     );
     if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked; // 날짜가 선택되면 상태 업데이트
-      });
-      _fetchMenu(_selectedDate);
+      _selectedDate = picked;
+      _loadMeals(); // 새 날짜로 데이터 로드
     }
   }
 
-  void _groupMealsByTime(MenuResponse response) {
-    // 임시로 사용할 리스트들을 만듭니다.
-    final List<MealByCafeteria> breakfastMenus = [];
-    final List<MealByCafeteria> lunchMenus = [];
-    final List<MealByCafeteria> dinnerMenus = [];
+  // 5. 데이터 구조 변환 함수: `List<Meal>` -> `Map<String, List<MealByCafeteria>>`
+  /// 기존 UI 위젯과 호환시키기 위한 데이터 변환 로직
+  /// 모든 A, B코스들을 아침, 점심, 저녁으로 분류해서 반환함.
+  Map<String, List<MealByCafeteria>> _groupMeals(List<Meal> meals) {
+    final Map<String, MealByCafeteria> tempMap = {};
 
-    // API 응답에 있는 모든 식당을 순회합니다.
-    for (var cafeteria in response.cafeterias) {
-      // 아침 메뉴가 있다면 breakfastMenus 리스트에 추가
-      if (cafeteria.meals.breakfast.isNotEmpty) {
-        breakfastMenus.add(
-          MealByCafeteria(
-            cafeteriaName: cafeteria.name,
-            hours: cafeteria.hours,
-            meals: cafeteria.meals.breakfast,
-          ),
+    for (var meal in meals) {
+      // isarLink를 통해 Restaurant 정보 로드
+      final restaurant = meal.restaurant.value;
+      if (restaurant == null) continue;
+
+      // 키 생성 (예: "생활관식당_점심")
+      final key = '${restaurant.name}_${meal.mealTime.name}';
+
+      // 특정 시간대(점심)을 담을 공간(바구니)가 있는지 확인하고 없으면 빈 바구니를 만듬
+      if (!tempMap.containsKey(key)) {
+        tempMap[key] = MealByCafeteria(
+          cafeteriaName: restaurant.name,
+          // MealByCafeteria 모델에 맞게 데이터 채우기
+          hours: _createHoursFromRestaurant(restaurant),
+          meals: [],
         );
       }
-      // 점심 메뉴가 있다면 lunchMenus 리스트에 추가
-      if (cafeteria.meals.lunch.isNotEmpty) {
-        lunchMenus.add(
-          MealByCafeteria(
-            cafeteriaName: cafeteria.name,
-            hours: cafeteria.hours,
-            meals: cafeteria.meals.lunch,
-          ),
-        );
-      }
-      // 저녁 메뉴가 있다면 dinnerMenus 리스트에 추가
-      if (cafeteria.meals.dinner.isNotEmpty) {
-        dinnerMenus.add(
-          MealByCafeteria(
-            cafeteriaName: cafeteria.name,
-            hours: cafeteria.hours,
-            meals: cafeteria.meals.dinner,
-          ),
-        );
-      }
+      // MealItem 모델로 변환하여 추가
+      tempMap[key]!.meals.add(
+        MealItem(course: meal.course, mainMenu: meal.menu, price: meal.price),
+      );
     }
 
-    // 최종적으로 상태 변수에 데이터를 채워넣습니다.
-    setState(() {
-      _groupedMeals = {
-        '아침': breakfastMenus,
-        '점심': lunchMenus,
-        '저녁': dinnerMenus,
-      };
+    // 최종적으로 시간대별로 그룹화
+    final Map<String, List<MealByCafeteria>> grouped = {
+      '아침': [],
+      '점심': [],
+      '저녁': [],
+    };
+    tempMap.forEach((key, value) {
+      if (key.endsWith('breakfast')) grouped['아침']!.add(value);
+      if (key.endsWith('lunch')) grouped['점심']!.add(value);
+      if (key.endsWith('dinner')) grouped['저녁']!.add(value);
     });
+
+    return grouped;
   }
 
-  /// Hours 문자열을 파싱하여 가장 늦은 종료 시각을 구합니다.
-  DateTime? _latestEndFromHoursString(String s, DateTime now) {
-    if (s.trim().isEmpty) return null;
-    final ranges = parseTimeRanges(s, now);
-    if (ranges.isEmpty) return null;
-    return ranges.map((r) => r.$2).reduce((a, b) => a.isAfter(b) ? a : b);
+  /// Restaurant 객체로부터 Hours 객체를 생성하는 헬퍼 함수
+  Hours _createHoursFromRestaurant(Restaurant r) {
+    return Hours(
+      breakfast: r.breakfastHours,
+      lunch: r.lunchHours,
+      dinner: r.dinnerHours,
+    );
   }
+
+  // 6. 기존 시간 정렬 로직을 새 데이터 구조에 맞게 수정
 
   /// 선택된 날짜의 운영시간(Hours)을 사용해 동적 경계를 계산한 뒤 섹션 순서를 반환합니다.
   /// 기준:
   /// - now < 아침 종료최대 → [아침, 점심, 저녁]
   /// - 아침 종료최대 ≤ now < 점심 종료최대 → [점심, 저녁, 아침]
   /// - 그 외 → [저녁, 아침, 점심]
-  List<String> _orderedMealTypesByDynamicHours(List<String> existingTypes) {
-    if (existingTypes.isEmpty) return existingTypes;
-    final response = _menuResponse;
-    if (response == null || response.cafeterias.isEmpty) return existingTypes;
-
+  List<String> _orderedMealTypesByDynamicHours(
+    Map<String, List<MealByCafeteria>> groupedMeals,
+  ) {
     final now = DateTime.now();
 
-    DateTime? breakfastMaxEnd;
-    DateTime? lunchMaxEnd;
-    DateTime? dinnerMaxEnd;
+    /// 가장 늦은 종료시간을 저장할 변수 선언
+    DateTime? breakfastMaxEnd, lunchMaxEnd, dinnerMaxEnd;
 
-    for (final c in response.cafeterias) {
-      final bEnd = _latestEndFromHoursString(c.hours.breakfast, now);
+    final allCafeterias = groupedMeals.values.expand((list) => list);
+
+    // 모든 식당의 운영시간을 순회하며 가장 늦은 종료시간 찾기
+    for (final cafeteria in allCafeterias) {
+      final bEnd = _latestEndFromHoursString(cafeteria.hours.breakfast, now);
       if (bEnd != null) {
         breakfastMaxEnd =
             (breakfastMaxEnd == null || bEnd.isAfter(breakfastMaxEnd))
             ? bEnd
             : breakfastMaxEnd;
       }
-      final lEnd = _latestEndFromHoursString(c.hours.lunch, now);
+      final lEnd = _latestEndFromHoursString(cafeteria.hours.lunch, now);
       if (lEnd != null) {
         lunchMaxEnd = (lunchMaxEnd == null || lEnd.isAfter(lunchMaxEnd))
             ? lEnd
             : lunchMaxEnd;
       }
-      final dEnd = _latestEndFromHoursString(c.hours.dinner, now);
+      final dEnd = _latestEndFromHoursString(cafeteria.hours.dinner, now);
       if (dEnd != null) {
         dinnerMaxEnd = (dinnerMaxEnd == null || dEnd.isAfter(dinnerMaxEnd))
             ? dEnd
@@ -189,51 +231,130 @@ class _MyHomePageState extends State<MyHomePage> {
       desiredOrder = ['아침', '점심', '저녁'];
     }
 
-    // existingTypes에 있는 키만 유지하고, 누락된 나머지는 뒤에 붙입니다.
+    final existingTypes = groupedMeals.keys
+        .where((k) => groupedMeals[k]!.isNotEmpty)
+        .toList();
+
     final ordered = <String>[];
+    // desiredOrder에 있는 순서대로 먼저 정렬 한다.
     for (final t in desiredOrder) {
       if (existingTypes.contains(t)) ordered.add(t);
     }
+    // desiredOrder에 포함되지 않았지만
+    // existingTypes(실제 존재하는 시간대 ex. 간식)에는 있었던
+    // 나머지 시간대들을 이어서 붙인다.
     for (final t in existingTypes) {
       if (!ordered.contains(t)) ordered.add(t);
     }
     return ordered;
   }
 
-  Widget _buildBody() {
-    if (_isLoading) {
-      // 로딩 상태
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_errorMessage != null) {
-      // 에러 메시지 발생
-      return Center(child: Text(_errorMessage!));
-    }
-    if (_menuResponse == null || _menuResponse!.cafeterias.isEmpty) {
-      // menuResponse가 없거나 모든 식당이 비었을때.
-      return const Center(child: Text("등록된 식단 정보가 없습니다."));
+  /// Hours 문자열을 파싱하여 가장 늦은 종료 시각을 구합니다.
+  DateTime? _latestEndFromHoursString(String s, DateTime now) {
+    if (s.trim().isEmpty) return null;
+    final ranges = parseTimeRanges(s, now);
+    if (ranges.isEmpty) return null;
+    return ranges.map((r) => r.$2).reduce((a, b) => a.isAfter(b) ? a : b);
+  }
+
+  /// 에러 상황에 맞는 위젯을 생성하는 함수
+  Widget _buildErrorWidget(Object error) {
+    String message;
+    IconData icon;
+
+    // 에러 확인
+    if (error is NetworkException) {
+      message = "인터넷 연결을 확인해주세요.";
+      icon = Icons.wifi_off_rounded;
+    } else {
+      message = "알 수 없는 오류가 발생했습니다.";
+      icon = Icons.error_outline_rounded;
     }
 
-    // 그룹화된 맵의 키('아침', '점심', '저녁')들로 리스트를 만든 후, 식당 운영시간 기반 동적 경계로 정렬합니다.
-    final mealTypes = _orderedMealTypesByDynamicHours(
-      _groupedMeals.keys.toList(),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 60, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text(message),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => setState(() {
+              _loadMeals();
+            }), // 재시도 버튼
+            child: const Text("다시 시도"),
+          ),
+        ],
+      ),
     );
+  }
 
-    // 성공 시 식당 목록을 보여주는 ListView
-    return ListView.builder(
-      itemCount: mealTypes.length,
-      itemBuilder: (context, index) {
-        final mealType = mealTypes[index];
-        final mealsByCafeteria = _groupedMeals[mealType]; // '아침', '점심', '저녁'
-
-        // 만약 해당 시간대에 메뉴가 하나도 없으면 그 섹션은 그리지 않습니다.
-        if (mealsByCafeteria == null || mealsByCafeteria.isEmpty) {
-          return const SizedBox.shrink();
+  // 7. buildBody를 FutureBuilder로 재구성
+  Widget _buildBody() {
+    return FutureBuilder<List<Meal>>(
+      future: _mealFuture,
+      builder: (context, snapshot) {
+        // 로딩 중
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        // 에러 발생
+        if (snapshot.hasError) {
+          return _buildErrorWidget(snapshot.error!);
+        }
+        // 데이터 없음
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("등록된 식단 정보가 없습니다."),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => setState(() {
+                    _refreshMeals();
+                  }),
+                  child: const Text("새로고침"),
+                ),
+              ],
+            ),
+          );
         }
 
-        return TimeGroupedCard(
-          title: mealType,
-          mealData: mealsByCafeteria,
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError && snapshot.error is! StaleDataException) {
+          return Center(child: Text('식단 정보를 불러오는데 실패했습니다: ${snapshot.error}'));
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text("등록된 식단 정보가 없습니다."));
+        }
+
+        // 데이터 로딩 성공
+        final meals = snapshot.data!;
+        final groupedMeals = _groupMeals(meals);
+        final mealTypes = _orderedMealTypesByDynamicHours(groupedMeals);
+
+        return RefreshIndicator(
+          onRefresh: _refreshMeals, // 당겨서 새로고침 기능 연결
+          child: ListView.builder(
+            itemCount: mealTypes.length,
+            itemBuilder: (context, index) {
+              final mealType = mealTypes[index];
+              final mealsByCafeteria = groupedMeals[mealType];
+
+              if (mealsByCafeteria == null || mealsByCafeteria.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return TimeGroupedCard(
+                title: mealType,
+                mealData: mealsByCafeteria,
+              );
+            },
+          ),
         );
       },
     );

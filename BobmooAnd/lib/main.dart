@@ -1,13 +1,18 @@
+import 'package:bobmoo/locator.dart';
 import 'package:bobmoo/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
+  // Flutter 바인딩 초기화
   WidgetsFlutterBinding.ensureInitialized();
 
   // 한국어 로케일데이터 추가
   await initializeDateFormatting('ko_KR', null);
+
+  // 앱 실행 전에 GetIt 설정 실행
+  await setupLocator();
 
   runApp(const BobMooApp());
 }
