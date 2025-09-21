@@ -291,7 +291,7 @@ class _MyHomePageState extends State<MyHomePage> {
   /// Hours 문자열을 파싱하여 가장 늦은 종료 시각을 구합니다.
   DateTime? _latestEndFromHoursString(String s, DateTime now) {
     if (s.trim().isEmpty) return null;
-    final ranges = parseTimeRanges(s, now);
+    final ranges = parseTimeRanges(s: s, now: now);
     if (ranges.isEmpty) return null;
     return ranges.map((r) => r.$2).reduce((a, b) => a.isAfter(b) ? a : b);
   }
@@ -391,6 +391,7 @@ class _MyHomePageState extends State<MyHomePage> {
               return TimeGroupedCard(
                 title: mealType,
                 mealData: mealsByCafeteria,
+                selectedDate: _selectedDate,
               );
             },
           ),
