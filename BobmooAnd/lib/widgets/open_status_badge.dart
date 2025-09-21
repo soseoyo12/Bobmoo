@@ -110,6 +110,25 @@ OpenStatus getStatusForHours(
 
   ranges.sort((a, b) => a.$1.compareTo(b.$1));
 
+  // 선택된 날짜와 현재 날짜를 비교
+  final today = DateTime(now.year, now.month, now.day);
+  final selectedDay = DateTime(
+    selectedDate.year,
+    selectedDate.month,
+    selectedDate.day,
+  );
+
+  // 과거 날짜인 경우 무조건 운영종료
+  if (selectedDay.isBefore(today)) {
+    return OpenStatus.after;
+  }
+
+  // 미래 날짜인 경우 무조건 운영전
+  if (selectedDay.isAfter(today)) {
+    return OpenStatus.before;
+  }
+
+  // 오늘 날짜인 경우 실제 시간으로 판단
   final selectedDateTime = DateTime(
     selectedDate.year,
     selectedDate.month,
@@ -123,13 +142,14 @@ OpenStatus getStatusForHours(
     (r) => selectedDateTime.isAfter(r.$1) && selectedDateTime.isBefore(r.$2),
   );
   if (isOpen) return OpenStatus.open;
+
   final earliestStart = ranges.first.$1;
-  if (now.isBefore(earliestStart)) return OpenStatus.before;
+  if (selectedDateTime.isBefore(earliestStart)) return OpenStatus.before;
 
   final latestEnd = ranges
       .map((r) => r.$2)
       .reduce((a, b) => a.isAfter(b) ? a : b);
-  if (now.isAfter(latestEnd)) return OpenStatus.after;
+  if (selectedDateTime.isAfter(latestEnd)) return OpenStatus.after;
 
   // 운영 중, 전, 후가 아닌 모든 경우 (예: 오전/오후 운영 사이의 쉬는 시간)
   // hoursString가 "08:00-09:00/11:30-13:30" 이런식일때
