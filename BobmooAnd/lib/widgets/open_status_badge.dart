@@ -6,11 +6,13 @@ class OpenStatusBadge extends StatelessWidget {
   final Hours hours;
   final String mealType; // '아침' | '점심' | '저녁'
   final DateTime now;
+  final DateTime selectedDate;
 
   OpenStatusBadge({
     super.key,
     required this.hours,
     required this.mealType,
+    required this.selectedDate,
     DateTime? now,
   }) : now = now ?? DateTime.now();
 
@@ -27,7 +29,7 @@ class OpenStatusBadge extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final status = getStatusForHours(hoursString, now);
+    final status = getStatusForHours(hoursString, now, selectedDate);
     switch (status) {
       case OpenStatus.before:
         return _StatusBadge(
@@ -94,13 +96,32 @@ class _StatusBadge extends StatelessWidget {
 }
 
 /// 주어진 hours 문자열(예: "08:00-09:30", "11:30~14:00", "08:00-09:00/11:30-13:30")을 해석하여 현재 상태를 계산
-OpenStatus getStatusForHours(String hoursString, DateTime now) {
-  final ranges = parseTimeRanges(hoursString, now);
+OpenStatus getStatusForHours(
+  String hoursString,
+  DateTime now,
+  DateTime selectedDate,
+) {
+  final ranges = parseTimeRanges(
+    s: hoursString,
+    now: now,
+    selectedDate: selectedDate,
+  );
   if (ranges.isEmpty) return OpenStatus.unknown;
 
   ranges.sort((a, b) => a.$1.compareTo(b.$1));
 
-  final isOpen = ranges.any((r) => now.isAfter(r.$1) && now.isBefore(r.$2));
+  final selectedDateTime = DateTime(
+    selectedDate.year,
+    selectedDate.month,
+    selectedDate.day,
+    now.hour,
+    now.minute,
+    now.second,
+  );
+
+  final isOpen = ranges.any(
+    (r) => selectedDateTime.isAfter(r.$1) && selectedDateTime.isBefore(r.$2),
+  );
   if (isOpen) return OpenStatus.open;
   final earliestStart = ranges.first.$1;
   if (now.isBefore(earliestStart)) return OpenStatus.before;

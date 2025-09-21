@@ -6,11 +6,13 @@ import 'package:flutter_svg/svg.dart';
 class TimeGroupedCard extends StatelessWidget {
   final String title;
   final List<MealByCafeteria> mealData;
+  final DateTime selectedDate;
 
   const TimeGroupedCard({
     super.key,
     required this.title,
     required this.mealData,
+    required this.selectedDate,
   });
 
   @override
@@ -55,6 +57,7 @@ class TimeGroupedCard extends StatelessWidget {
                   child: CafeteriaMenuColumn(
                     data: mealData[index],
                     mealType: title,
+                    selectedDate: selectedDate,
                   ),
                 );
               },
