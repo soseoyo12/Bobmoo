@@ -8,7 +8,9 @@ import 'package:bobmoo/models/menu_model.dart';
 import 'package:bobmoo/repositories/meal_repository.dart';
 import 'package:bobmoo/widgets/time_grouped_card.dart';
 import 'package:bobmoo/utils/hours_parser.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:intl/intl.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -32,8 +34,45 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    // 앱 시작 시 업데이트 확인
+    checkForUpdate();
     // initState에서는 setState를 호출하지 않고, Future를 직접 할당합니다.
     _mealFuture = _fetchData();
+  }
+
+  /// 인앱 업데이트를 확인하고, 가능하면 유연한 업데이트를 시작하는 함수
+  Future<void> checkForUpdate() async {
+    try {
+      // 1. 업데이트가 사용 가능한지 확인합니다.
+      final AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
+
+      // 2. 업데이트가 있고, 유연한 업데이트(FLEXIBLE)가 허용되는 경우
+      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable &&
+          updateInfo.flexibleUpdateAllowed) {
+        // 3. 유연한 업데이트를 시작합니다.
+        await InAppUpdate.startFlexibleUpdate();
+
+        // 4. 다운로드가 완료되면 사용자에게 설치를 요청합니다.
+        //    SnackBar나 다른 UI 요소를 사용하여 알릴 수 있습니다.
+        await InAppUpdate.completeFlexibleUpdate()
+            .then((_) {
+              // 이곳에 업데이트 완료 후 처리할 로직을 추가할 수 있습니다.
+              if (kDebugMode) {
+                print("업데이트가 완료되었습니다.");
+              }
+            })
+            .catchError((e) {
+              if (kDebugMode) {
+                print(e.toString());
+              }
+            });
+      }
+    } catch (e) {
+      // 오류 처리
+      if (kDebugMode) {
+        print(e.toString());
+      }
+    }
   }
 
   /// 데이터 로딩의 비동기 로직 함수
