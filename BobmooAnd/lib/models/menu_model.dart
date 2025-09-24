@@ -100,6 +100,11 @@ class Meals {
 }
 
 // 4b. 개별 메뉴 아이템 모델
+/// course: A코스, B코스 등
+///
+/// mainMenu: 메뉴들
+///
+/// price: 가격
 class MealItem {
   final String course;
   final String mainMenu;

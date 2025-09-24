@@ -6,9 +6,10 @@
     android:minHeight="110dp"
     android:targetCellWidth="2"
     android:targetCellHeight="2"
-    android:updatePeriodMillis="@integer/widget_update_period_daily"
-    android:initialLayout="@layout/widget_layout"
+    android:updatePeriodMillis="0"
+    android:previewImage="@mipmap/ic_launcher"
+    android:initialLayout="@layout/glance_default_preview"
+    android:description="@string/app_name"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen">
 </appwidget-provider>
-<!-- updatePeriodMillis: 업데이트 주기 설정 -->
