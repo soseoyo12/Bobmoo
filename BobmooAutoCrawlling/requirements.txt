@@ -1,0 +1,9 @@
+requests
+beautifulsoup4
+lxml
+charset-normalizer
+google-generativeai
+jsonschema
+selenium
+webdriver-manager
+python-dotenv

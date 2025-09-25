@@ -44,6 +44,30 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CA1BA3092E7FFA4400DE452E /* Exceptions for "BabmooiOS" folder in "BobMooWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"fonts/Pretendard-Black.otf",
+				"fonts/Pretendard-Black.ttf",
+				"fonts/Pretendard-Bold.otf",
+				"fonts/Pretendard-Bold.ttf",
+				"fonts/Pretendard-ExtraBold.otf",
+				"fonts/Pretendard-ExtraBold.ttf",
+				"fonts/Pretendard-ExtraLight.otf",
+				"fonts/Pretendard-ExtraLight.ttf",
+				"fonts/Pretendard-Light.otf",
+				"fonts/Pretendard-Light.ttf",
+				"fonts/Pretendard-Medium.otf",
+				"fonts/Pretendard-Medium.ttf",
+				"fonts/Pretendard-Regular.otf",
+				"fonts/Pretendard-Regular.ttf",
+				"fonts/Pretendard-SemiBold.otf",
+				"fonts/Pretendard-SemiBold.ttf",
+				"fonts/Pretendard-Thin.otf",
+				"fonts/Pretendard-Thin.ttf",
+			);
+			target = CA9DF0CE2E64311300B8766C /* BobMooWidgetExtension */;
+		};
 		CA9DF0E62E64311400B8766C /* Exceptions for "BobMooWidget" folder in "BobMooWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -56,6 +80,9 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CA5C93382E63760A001A7FE4 /* BabmooiOS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CA1BA3092E7FFA4400DE452E /* Exceptions for "BabmooiOS" folder in "BobMooWidgetExtension" target */,
+			);
 			path = BabmooiOS;
 			sourceTree = "<group>";
 		};
