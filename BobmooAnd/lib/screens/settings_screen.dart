@@ -1,5 +1,6 @@
 import 'package:bobmoo/services/permission_service.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -16,6 +17,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _permissionFuture = PermissionService.canScheduleExactAlarms();
+
+    // 설정 화면에 진입하면 배너 닫힘 상태를 초기화합니다.
+    _resetBannerDismissalStatus();
+  }
+
+  // 새로 추가된 함수
+  Future<void> _resetBannerDismissalStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    // '닫음' 상태를 false로 되돌려서, 홈 화면에서 배너가 다시 보일 수 있도록 함
+    await prefs.setBool('permissionBannerDismissed', false);
   }
 
   @override

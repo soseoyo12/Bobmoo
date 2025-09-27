@@ -16,6 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -33,8 +34,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   /// 선택한 날짜 저장할 상태 변수
   DateTime _selectedDate = DateTime.now();
-
-  bool _showPermissionBanner = false; // 배너 표시 여부를 제어할 상태 변수
+  // 배너 표시 여부를 제어할 상태 변수
+  bool _showPermissionBanner = false;
+  // 사용자가 배너를 닫았는지 여부를 저장할 변수
+  bool _bannerDismissed = false;
 
   /// 화면이 처음 나타날 때 데이터 불러오기
   @override
@@ -75,13 +78,26 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   /// 권한을 확인하고 배너 표시 여부를 결정하는 함수
   Future<void> _checkPermissionAndShowBanner() async {
+    // SharedPreferences에서 '닫음' 상태를 먼저 읽어옴
+    final prefs = await SharedPreferences.getInstance();
+    _bannerDismissed = prefs.getBool('permissionBannerDismissed') ?? false;
+
     final hasPermission = await PermissionService.canScheduleExactAlarms();
     if (mounted) {
       // 위젯이 화면에 있을 때만 setState 호출
       setState(() {
-        _showPermissionBanner = !hasPermission;
+        _showPermissionBanner = !hasPermission && !_bannerDismissed;
       });
     }
+  }
+
+  // 배너 닫기 버튼을 눌렀을 때 실행될 함수 (새로 추가)
+  Future<void> _dismissPermissionBanner() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('permissionBannerDismissed', true);
+    setState(() {
+      _showPermissionBanner = false;
+    });
   }
 
   /// 인앱 업데이트를 확인하고, 가능하면 유연한 업데이트를 시작하는 함수
@@ -589,7 +605,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const SizedBox(width: 12),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white70),
+                      onPressed: _dismissPermissionBanner,
+                      tooltip: '닫기',
+                    ),
                     const Expanded(
                       child: Text(
                         '실시간 위젯 업데이트를 위해\n권한이 필요합니다.',
