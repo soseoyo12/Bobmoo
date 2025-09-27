@@ -37,7 +37,7 @@
         <receiver
             android:name=".MealGlanceWidgetReceiver"
             android:exported="true"
-            android:label="오늘의 학식 위젯 (Glance)">
+            android:label="오늘의 학식 위젯">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

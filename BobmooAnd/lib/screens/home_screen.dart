@@ -6,6 +6,8 @@ import 'package:bobmoo/locator.dart';
 import 'package:bobmoo/models/meal_by_cafeteria.dart';
 import 'package:bobmoo/models/menu_model.dart';
 import 'package:bobmoo/repositories/meal_repository.dart';
+import 'package:bobmoo/models/meal_widget_data.dart';
+import 'package:bobmoo/services/widget_service.dart';
 import 'package:bobmoo/widgets/time_grouped_card.dart';
 import 'package:bobmoo/utils/hours_parser.dart';
 import 'package:flutter/foundation.dart';
@@ -22,7 +24,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   // 1. 상태변구 변경: Future 객체로 데이터와 로딩 상태를 한번에 관리
   final MealRepository _repository = locator<MealRepository>();
   late Future<List<Meal>> _mealFuture;
@@ -34,10 +36,31 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    // 앱 상태를 확인하기 위한 옵저버 할당
+    WidgetsBinding.instance.addObserver(this);
     // 앱 시작 시 업데이트 확인
     checkForUpdate();
     // initState에서는 setState를 호출하지 않고, Future를 직접 할당합니다.
     _mealFuture = _fetchData();
+
+    // 앱 시작 시에도 위젯 업데이트
+    _updateWidgetOnly();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // 앱이 포그라운드로 돌아올 때마다 위젯 업데이트
+    if (state == AppLifecycleState.resumed) {
+      _updateWidgetOnly();
+    }
   }
 
   /// 인앱 업데이트를 확인하고, 가능하면 유연한 업데이트를 시작하는 함수
@@ -79,7 +102,12 @@ class _MyHomePageState extends State<MyHomePage> {
   /// Repository에게 식단 데이터를 요청한다.
   Future<List<Meal>> _fetchData() async {
     try {
-      return await _repository.getMealsForDate(_selectedDate);
+      final meals = await _repository.getMealsForDate(_selectedDate);
+
+      // 데이터 로딩 시에도 조건부 위젯 업데이트
+      _updateWidgetOnly();
+
+      return meals;
     } catch (e) {
       if (e is StaleDataException) {
         // 신선도가 떨어진 데이터를 취급하는 경우
@@ -95,7 +123,53 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  // StaleDataException 발생 시 SnackBar를 띄우는 헬퍼 함수
+  /// 위젯 데이터 업데이트 함수 (오늘날짜)
+  Future<void> _updateWidgetOnly() async {
+    // 오늘 날짜인 경우에만 위젯 업데이트
+    try {
+      final today = DateTime.now();
+      // 1. 오늘 날짜의 메뉴 데이터 가져오기
+      final todayMeals = await _repository.getMealsForDate(today);
+
+      // 2. 데이터가 없으면 위젯 업데이트하지 않음
+      if (todayMeals.isEmpty) {
+        return;
+      }
+
+      // 3. 데이터 구조 변환
+      final groupedMeals = _groupMeals(todayMeals);
+      final mealTypes = _orderedMealTypesByDynamicHours(groupedMeals);
+
+      // 4. 첫 번째 식당 선택
+      // TODO: 식당 선택하는 설정 페이지 만들고 연결해야함.
+      final firstType = mealTypes.firstWhere(
+        (t) => groupedMeals[t]!.isNotEmpty,
+        orElse: () => mealTypes.first,
+      );
+      final firstCafeteria = groupedMeals[firstType]!.first;
+
+      // 5. 위젯 데이터 생성 및 저장
+      final widgetData = MealWidgetData.fromGrouped(
+        date: DateFormat('yyyy-MM-dd').format(today), // 항상 오늘 날짜
+        cafeteriaName: firstCafeteria.cafeteriaName,
+        grouped: groupedMeals.map((k, v) => MapEntry(k, v)),
+        hours: firstCafeteria.hours,
+      );
+
+      if (kDebugMode) {
+        debugPrint('✅ 위젯 데이터 업데이트 성공!');
+      }
+
+      await WidgetService.saveMealWidgetData(widgetData);
+    } catch (e) {
+      // 위젯 업데이트 실패는 조용히 무시 (사용자 경험에 영향 없음)
+      if (kDebugMode) {
+        debugPrint('위젯 업데이트 실패: $e');
+      }
+    }
+  }
+
+  /// StaleDataException 발생 시 SnackBar를 띄우는 헬퍼 함수
   void _showStaleDataSnackbar(StaleDataException e) {
     // SnackBar는 build가 완료된 후에 띄워야 하므로 addPostFrameCallback 사용
     WidgetsBinding.instance.addPostFrameCallback((_) {
