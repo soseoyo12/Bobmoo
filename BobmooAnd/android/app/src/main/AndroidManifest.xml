@@ -41,7 +41,6 @@
             android:label="오늘의 학식 위젯">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.TIME_TICK" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

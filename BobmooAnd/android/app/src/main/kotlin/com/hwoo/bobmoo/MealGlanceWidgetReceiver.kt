@@ -77,7 +77,7 @@ class MealGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             if (alarmManager.canScheduleExactAlarms()) {
                 // 권한이 있을 때만 정확한 알람을 설정합니다.
-                alarmManager.setExactAndAllowWhileIdle(
+                alarmManager.setExact(
                     AlarmManager.RTC_WAKEUP,
                     nextMinute.timeInMillis,
                     pendingIntent
@@ -93,7 +93,7 @@ class MealGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
             }
         } else {
             // 안드로이드 11 (R, API 30) 이하 버전에서는 이전처럼 바로 설정합니다.
-            alarmManager.setExactAndAllowWhileIdle(
+            alarmManager.setExact(
                 AlarmManager.RTC_WAKEUP,
                 nextMinute.timeInMillis,
                 pendingIntent

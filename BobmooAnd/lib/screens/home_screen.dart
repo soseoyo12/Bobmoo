@@ -7,6 +7,8 @@ import 'package:bobmoo/models/meal_by_cafeteria.dart';
 import 'package:bobmoo/models/menu_model.dart';
 import 'package:bobmoo/repositories/meal_repository.dart';
 import 'package:bobmoo/models/meal_widget_data.dart';
+import 'package:bobmoo/screens/settings_screen.dart';
+import 'package:bobmoo/services/permission_service.dart';
 import 'package:bobmoo/services/widget_service.dart';
 import 'package:bobmoo/widgets/time_grouped_card.dart';
 import 'package:bobmoo/utils/hours_parser.dart';
@@ -32,6 +34,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   /// 선택한 날짜 저장할 상태 변수
   DateTime _selectedDate = DateTime.now();
 
+  bool _showPermissionBanner = false; // 배너 표시 여부를 제어할 상태 변수
+
   /// 화면이 처음 나타날 때 데이터 불러오기
   @override
   void initState() {
@@ -45,6 +49,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
     // 앱 시작 시에도 위젯 업데이트
     _updateWidgetOnly();
+
+    // 앱 시작 시 권한 확인
+    _checkPermissionAndShowBanner();
   }
 
   @override
@@ -60,6 +67,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // 앱이 포그라운드로 돌아올 때마다 위젯 업데이트
     if (state == AppLifecycleState.resumed) {
       _updateWidgetOnly();
+
+      // 앱이 다시 활성화될 때마다 권한 확인
+      _checkPermissionAndShowBanner();
+    }
+  }
+
+  /// 권한을 확인하고 배너 표시 여부를 결정하는 함수
+  Future<void> _checkPermissionAndShowBanner() async {
+    final hasPermission = await PermissionService.canScheduleExactAlarms();
+    if (mounted) {
+      // 위젯이 화면에 있을 때만 setState 호출
+      setState(() {
+        _showPermissionBanner = !hasPermission;
+      });
     }
   }
 
@@ -521,39 +542,87 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           ],
         ),
         actions: [
-          // TODO: 설정 나중에 페이지 완성되면 버튼 돌려놓기
-          // IconButton(
-          //   icon: const Icon(Icons.settings), // 설정 아이콘
-          //   tooltip: '설정', // 풍선 도움말
-          //   onPressed: () {
-          //     Navigator.of(context).push(
-          //       PageRouteBuilder(
-          //         pageBuilder: (context, animation, secondaryAnimation) =>
-          //             const SettingsScreen(),
-          //         transitionsBuilder:
-          //             (context, animation, secondaryAnimation, child) {
-          //               const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
-          //               const end = Offset.zero; // 원래 위치로 이동
-          //               const curve = Curves.ease; // 부드러운 전환 효과
+          IconButton(
+            icon: const Icon(Icons.settings), // 설정 아이콘
+            tooltip: '설정', // 풍선 도움말
+            onPressed: () {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      const SettingsScreen(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
+                        const end = Offset.zero; // 원래 위치로 이동
+                        const curve = Curves.ease; // 부드러운 전환 효과
 
-          //               var tween = Tween(
-          //                 begin: begin,
-          //                 end: end,
-          //               ).chain(CurveTween(curve: curve));
-          //               var offsetAnimation = animation.drive(tween);
+                        var tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        var offsetAnimation = animation.drive(tween);
 
-          //               return SlideTransition(
-          //                 position: offsetAnimation,
-          //                 child: child,
-          //               );
-          //             },
-          //       ),
-          //     );
-          //   },
-          // ),
+                        return SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        );
+                      },
+                ),
+              );
+            },
+          ),
         ],
       ),
       body: _buildBody(),
+      bottomNavigationBar: _showPermissionBanner
+          ? SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(12.0),
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.blueGrey.shade700,
+                  borderRadius: BorderRadius.circular(32.0),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        '실시간 위젯 업데이트를 위해\n권한이 필요합니다.',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(32.0),
+                        ),
+                      ),
+                      child: const Text(
+                        '설정하기',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      onPressed: () async {
+                        await PermissionService.openAlarmPermissionSettings();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : null, // 권한이 있으면 아무것도 표시하지 않음
     );
   }
 }
