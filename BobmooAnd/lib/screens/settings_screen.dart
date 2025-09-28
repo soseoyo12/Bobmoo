@@ -1,6 +1,9 @@
+import 'package:bobmoo/constants/app_constants.dart';
 import 'package:bobmoo/services/permission_service.dart';
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -39,23 +42,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// 화면이 로드될 때 저장된 대표 식당 설정을 불러옵니다.
   Future<void> _loadSelectedCafeteria() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      // 'selectedCafeteriaName' 키로 저장된 값을 불러옵니다. 없으면 첫 번째 식당을 기본값으로.
-      _selectedCafeteria =
-          prefs.getString('selectedCafeteriaName') ?? _cafeteriaList.first;
-    });
+    // SharedPreferences 대신 HomeWidget에서 데이터를 직접 읽어옵니다.
+    final storedName = await HomeWidget.getWidgetData<String>(
+      'selectedCafeteriaName',
+      defaultValue: _cafeteriaList.first,
+    );
+    // mounted 체크 추가
+    if (mounted) {
+      setState(() {
+        _selectedCafeteria = storedName;
+      });
+    }
   }
 
   Future<void> _saveSelectedCafeteria(String cafeteriaName) async {
-    final prefs = await SharedPreferences.getInstance();
-    // 'selectedCafeteriaName' 라는 새로운 키로 선택된 식당 이름을 저장합니다.
-    await prefs.setString('selectedCafeteriaName', cafeteriaName);
+    // SharedPreferences 대신 HomeWidget을 사용하여 데이터를 저장합니다.
+    await HomeWidget.saveWidgetData<String>(
+      'selectedCafeteriaName',
+      cafeteriaName,
+    );
+
     setState(() {
       _selectedCafeteria = cafeteriaName;
     });
-    // 나중에 대표 식당 변경 후 즉시 위젯을 업데이트하고 싶다면 여기서 위젯 업데이트 함수 호출
-    // 예: WidgetService.saveAllCafeteriasWidgetData(...);
+
+    // 2x2 위젯과 4x2 위젯 모두에게 업데이트하라는 신호를 보냅니다.
+    await HomeWidget.updateWidget(
+      qualifiedAndroidName: 'com.hwoo.bobmoo.MealGlanceWidgetReceiver',
+    );
+    await HomeWidget.updateWidget(
+      qualifiedAndroidName: 'com.hwoo.bobmoo.AllCafeteriasGlanceWidgetReceiver',
+    );
+
+    // async 함수에서 context를 사용할 때는 항상 mounted 여부를 확인하는 것이 안전합니다.
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          '위젯 설정이 변경되었습니다. 잠시 후에 반영됩니다.',
+          textAlign: TextAlign.center,
+        ),
+        duration: const Duration(seconds: 2), // 2초 동안 표시
+        behavior: SnackBarBehavior.floating, // 하단에 떠있는 형태로 표시
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+      ),
+    );
   }
 
   @override

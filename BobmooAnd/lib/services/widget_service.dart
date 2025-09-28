@@ -1,21 +1,9 @@
 import 'dart:convert';
 import 'package:home_widget/home_widget.dart';
-import 'package:bobmoo/models/meal_widget_data.dart';
 import 'package:bobmoo/models/all_cafeterias_widget_data.dart';
 
 class WidgetService {
   static const String _widgetDataKey = 'widgetData';
-
-  /// MealWidgetData를 JSON으로 저장하고 위젯 업데이트 트리거 (2x2 위젯용)
-  @Deprecated('Use saveAllCafeteriasWidgetData instead')
-  static Future<void> saveMealWidgetData(MealWidgetData data) async {
-    final jsonString = jsonEncode(data.toJson());
-    await HomeWidget.saveWidgetData<String>(_widgetDataKey, jsonString);
-    await HomeWidget.updateWidget(
-      // Glance 업데이트 트리거
-      qualifiedAndroidName: 'com.hwoo.bobmoo.MealGlanceWidgetReceiver',
-    );
-  }
 
   /// 여러 식당 데이터를 JSON으로 저장하고 '모든 식당' 위젯 업데이트 트리거 (신규 4x2 위젯용)
   static Future<void> saveAllCafeteriasWidgetData(
