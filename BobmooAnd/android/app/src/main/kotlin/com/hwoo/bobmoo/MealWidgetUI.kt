@@ -37,7 +37,7 @@ fun MealWidgetContent(
     Box(
         modifier = GlanceModifier
             .background(Color.White)
-            .padding(16.dp)
+            .padding(12.dp)
             .clickable(onClick = actionStartActivity<MainActivity>(context))
     ) {
         Column(
@@ -46,7 +46,7 @@ fun MealWidgetContent(
             horizontalAlignment = Alignment.Horizontal.Start,
         ) {
             // 날짜 + 현재 시간
-            Text(text = currentTimeString, style = TextStyle(fontSize = 12.sp))
+            Text(text = currentTimeString, style = TextStyle(fontSize = 10.sp))
 
             // 시간대 + 운영시간(작게)
             Row(modifier = GlanceModifier.padding(top = 6.dp)) {
@@ -55,8 +55,8 @@ fun MealWidgetContent(
                     style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 )
                 Text(
-                    text = "  $hoursLabel",
-                    style = TextStyle(fontSize = 12.sp)
+                    text = "  ($hoursLabel)",
+                    style = TextStyle(fontSize = 10.sp)
                 )
             }
 
@@ -64,10 +64,13 @@ fun MealWidgetContent(
             // androidx.glance.color.ColorProvider(Color.Gray, Color.Red)
             // 첫번째는 일반(라이트) 일때 색상 두번째는 다크모드일때 색상
 
+
+            Box(modifier = GlanceModifier.padding(top = 4.dp)) {}
+
             // 식당 이름
             Text(
                 text = cafeteriaName,
-                style = TextStyle(fontSize = 14.sp),
+                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold),
                 modifier = GlanceModifier.padding(top = 6.dp)
             )
 
@@ -75,7 +78,7 @@ fun MealWidgetContent(
             courses.forEach { line ->
                 Text(
                     text = line,
-                    style = TextStyle(fontSize = 12.sp),
+                    style = TextStyle(fontSize = 13.sp),
                     modifier = GlanceModifier.padding(top = 4.dp)
                 )
             }
@@ -83,8 +86,8 @@ fun MealWidgetContent(
             // 오른쪽 아래 운영 상태
             Text(
                 text = status,
-                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 12.sp),
-                modifier = GlanceModifier.padding(top = 8.dp)
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp),
+                modifier = GlanceModifier.padding(top = 12.dp)
             )
         }
     }
