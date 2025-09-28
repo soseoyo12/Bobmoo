@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 # .env 파일 로드
 load_dotenv()
 
-# Gemini API 키 (직접 설정)
-GEMINI_API_KEY = "AIzaSyB8Kclgeiw9SumgRPP4SIoXzTh3TMlMxTc"
+# Gemini API 키 (환경변수에서만 가져오기)
+GEMINI_API_KEY = None
 
 # 환경변수에서 가져오기 시도 (우선순위)
 env_key = os.getenv('GEMINI_API_KEY')
