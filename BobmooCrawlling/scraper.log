@@ -1,0 +1,141 @@
+2025-09-28 19:33:41,974 - file_manager - INFO - 출력 디렉토리 생성: output
+2025-09-28 19:33:41,974 - __main__ - INFO - 스크래핑 시작: https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:33:42,315 - web_scraper - INFO - 페이지 로딩 중: https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:33:51,679 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 19:33:51,683 - __main__ - INFO - HTML 스크래핑 완료
+2025-09-28 19:33:51,718 - __main__ - INFO - HTML 정리 완료
+2025-09-28 19:33:51,719 - gemini_parser - INFO - Gemini API로 HTML 분석 시작
+2025-09-28 19:33:58,406 - gemini_parser - INFO - Gemini API 분석 완료
+2025-09-28 19:33:58,406 - __main__ - INFO - Gemini API 분석 완료
+2025-09-28 19:33:58,407 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-05-03.json
+2025-09-28 19:33:58,408 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-05-03.json
+2025-09-28 19:36:12,152 - file_manager - INFO - 출력 디렉토리 생성: output
+2025-09-28 19:36:12,152 - __main__ - INFO - 스크래핑 시작: https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:36:12,804 - web_scraper - INFO - 페이지 로딩 중: https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:36:23,606 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 19:36:23,613 - __main__ - INFO - HTML 스크래핑 완료
+2025-09-28 19:36:23,652 - __main__ - INFO - HTML 정리 완료
+2025-09-28 19:36:23,652 - gemini_parser - INFO - Gemini API로 HTML 분석 시작
+2025-09-28 19:36:32,305 - gemini_parser - ERROR - Gemini API 분석 중 오류 발생: Extra data: line 47 column 6 (char 1500)
+2025-09-28 19:36:32,305 - __main__ - INFO - Gemini API 분석 완료 - 1개 날짜의 데이터 추출
+2025-09-28 19:36:32,306 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2025-09-28.json
+2025-09-28 19:36:32,306 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2025-09-28.json
+2025-09-28 19:36:47,936 - file_manager - INFO - 출력 디렉토리 생성: output
+2025-09-28 19:36:47,936 - __main__ - INFO - 스크래핑 시작: https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:36:48,260 - web_scraper - INFO - 페이지 로딩 중: https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:36:57,497 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 19:36:57,502 - __main__ - INFO - HTML 스크래핑 완료
+2025-09-28 19:36:57,541 - __main__ - INFO - HTML 정리 완료
+2025-09-28 19:36:57,541 - gemini_parser - INFO - Gemini API로 HTML 분석 시작
+2025-09-28 19:37:06,824 - gemini_parser - INFO - Gemini API 분석 완료 - 5개 날짜의 데이터 추출
+2025-09-28 19:37:06,824 - __main__ - INFO - Gemini API 분석 완료 - 5개 날짜의 데이터 추출
+2025-09-28 19:37:06,824 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-09-29.json
+2025-09-28 19:37:06,824 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-09-29.json
+2025-09-28 19:37:06,824 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-09-30.json
+2025-09-28 19:37:06,824 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-09-30.json
+2025-09-28 19:37:06,824 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-10-01.json
+2025-09-28 19:37:06,824 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-01.json
+2025-09-28 19:37:06,825 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-10-02.json
+2025-09-28 19:37:06,825 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-02.json
+2025-09-28 19:37:06,825 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-10-03.json
+2025-09-28 19:37:06,825 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-03.json
+2025-09-28 19:43:21,705 - __main__ - INFO - 스크래핑 시작 (1/2): https://www.inha.ac.kr/kr/1072/subview.do
+2025-09-28 19:43:22,264 - web_scraper - INFO - 페이지 로딩 중: https://www.inha.ac.kr/kr/1072/subview.do
+2025-09-28 19:43:34,975 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 19:43:34,981 - __main__ - INFO - HTML 스크래핑 완료 (1/2)
+2025-09-28 19:43:35,022 - __main__ - INFO - HTML 정리 완료 (1/2)
+2025-09-28 19:43:35,022 - gemini_parser - INFO - Gemini API로 HTML 분석 시작
+2025-09-28 19:43:47,160 - gemini_parser - INFO - Gemini API 분석 완료 - 5개 날짜의 데이터 추출
+2025-09-28 19:43:47,160 - __main__ - INFO - Gemini API 분석 완료 (1/2) - 5개 날짜의 데이터 추출
+2025-09-28 19:43:47,160 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:43:47,160 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:43:47,160 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:43:47,160 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:43:47,160 - __main__ - INFO - 스크래핑 시작 (2/2): https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:43:50,867 - web_scraper - INFO - 페이지 로딩 중: https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:44:01,093 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 19:44:01,097 - __main__ - INFO - HTML 스크래핑 완료 (2/2)
+2025-09-28 19:44:01,150 - __main__ - INFO - HTML 정리 완료 (2/2)
+2025-09-28 19:44:01,150 - gemini_parser - INFO - Gemini API로 HTML 분석 시작
+2025-09-28 19:44:18,142 - gemini_parser - INFO - Gemini API 분석 완료 - 5개 날짜의 데이터 추출
+2025-09-28 19:44:18,143 - __main__ - INFO - Gemini API 분석 완료 (2/2) - 5개 날짜의 데이터 추출
+2025-09-28 19:44:18,143 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:44:18,143 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:44:18,143 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:44:18,143 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:44:18,143 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-09-29.json
+2025-09-28 19:44:18,143 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-09-29.json
+2025-09-28 19:44:18,143 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-09-30.json
+2025-09-28 19:44:18,143 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-09-30.json
+2025-09-28 19:44:18,144 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-10-01.json
+2025-09-28 19:44:18,144 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-01.json
+2025-09-28 19:44:18,144 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-10-02.json
+2025-09-28 19:44:18,144 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-02.json
+2025-09-28 19:44:18,144 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-10-03.json
+2025-09-28 19:44:18,144 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-03.json
+2025-09-28 19:47:45,157 - file_manager - INFO - 출력 디렉토리 생성: output
+2025-09-28 19:47:45,157 - __main__ - INFO - 스크래핑 시작 (1/2): https://www.inha.ac.kr/kr/1072/subview.do
+2025-09-28 19:47:45,821 - web_scraper - INFO - 페이지 로딩 중: https://www.inha.ac.kr/kr/1072/subview.do
+2025-09-28 19:47:56,011 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 19:47:56,017 - __main__ - INFO - HTML 스크래핑 완료 (1/2)
+2025-09-28 19:47:56,057 - __main__ - INFO - HTML 정리 완료 (1/2)
+2025-09-28 19:47:56,058 - gemini_parser - INFO - Gemini API로 HTML 분석 시작
+2025-09-28 19:48:09,092 - gemini_parser - INFO - Gemini API 분석 완료 - 4개 날짜의 데이터 추출
+2025-09-28 19:48:09,093 - __main__ - INFO - Gemini API 분석 완료 (1/2) - 4개 날짜의 데이터 추출
+2025-09-28 19:48:09,093 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:48:09,093 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:48:09,093 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:48:09,093 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:48:09,093 - __main__ - INFO - 스크래핑 시작 (2/2): https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:48:09,437 - web_scraper - INFO - 페이지 로딩 중: https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:48:19,502 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 19:48:19,507 - __main__ - INFO - HTML 스크래핑 완료 (2/2)
+2025-09-28 19:48:19,569 - __main__ - INFO - HTML 정리 완료 (2/2)
+2025-09-28 19:48:19,570 - gemini_parser - INFO - Gemini API로 HTML 분석 시작
+2025-09-28 19:48:31,997 - gemini_parser - INFO - Gemini API 분석 완료 - 4개 날짜의 데이터 추출
+2025-09-28 19:48:31,998 - __main__ - INFO - Gemini API 분석 완료 (2/2) - 4개 날짜의 데이터 추출
+2025-09-28 19:48:31,998 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:48:31,998 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:48:31,998 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:48:31,998 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:48:32,000 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-09-29.json
+2025-09-28 19:48:32,000 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-09-29.json
+2025-09-28 19:48:32,001 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-09-30.json
+2025-09-28 19:48:32,002 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-09-30.json
+2025-09-28 19:48:32,003 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-10-01.json
+2025-09-28 19:48:32,003 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-01.json
+2025-09-28 19:48:32,004 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-10-02.json
+2025-09-28 19:48:32,004 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-02.json
+2025-09-28 19:49:11,072 - file_manager - INFO - 출력 디렉토리 생성: output
+2025-09-28 19:49:11,072 - __main__ - INFO - 스크래핑 시작 (1/2): https://www.inha.ac.kr/kr/1072/subview.do
+2025-09-28 19:49:11,397 - web_scraper - INFO - 페이지 로딩 중: https://www.inha.ac.kr/kr/1072/subview.do
+2025-09-28 19:49:21,333 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 19:49:21,338 - __main__ - INFO - HTML 스크래핑 완료 (1/2)
+2025-09-28 19:49:21,380 - __main__ - INFO - HTML 정리 완료 (1/2)
+2025-09-28 19:49:21,380 - gemini_parser - INFO - Gemini API로 HTML 분석 시작
+2025-09-28 19:49:33,148 - gemini_parser - INFO - Gemini API 분석 완료 - 4개 날짜의 데이터 추출
+2025-09-28 19:49:33,148 - __main__ - INFO - Gemini API 분석 완료 (1/2) - 4개 날짜의 데이터 추출
+2025-09-28 19:49:33,148 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:49:33,149 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:49:33,149 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:49:33,149 - file_manager - INFO - 새로운 식당 추가: 학생식당(학생회관)
+2025-09-28 19:49:33,149 - __main__ - INFO - 스크래핑 시작 (2/2): https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:49:33,504 - web_scraper - INFO - 페이지 로딩 중: https://www.inha.ac.kr/kr/1073/subview.do
+2025-09-28 19:49:43,909 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 19:49:43,913 - __main__ - INFO - HTML 스크래핑 완료 (2/2)
+2025-09-28 19:49:43,976 - __main__ - INFO - HTML 정리 완료 (2/2)
+2025-09-28 19:49:43,976 - gemini_parser - INFO - Gemini API로 HTML 분석 시작
+2025-09-28 19:49:55,277 - gemini_parser - INFO - Gemini API 분석 완료 - 4개 날짜의 데이터 추출
+2025-09-28 19:49:55,278 - __main__ - INFO - Gemini API 분석 완료 (2/2) - 4개 날짜의 데이터 추출
+2025-09-28 19:49:55,278 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:49:55,278 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:49:55,278 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:49:55,278 - file_manager - INFO - 새로운 식당 추가: 교직원식당
+2025-09-28 19:49:55,278 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-09-29.json
+2025-09-28 19:49:55,278 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-09-29.json
+2025-09-28 19:49:55,278 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-09-30.json
+2025-09-28 19:49:55,279 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-09-30.json
+2025-09-28 19:49:55,279 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-10-01.json
+2025-09-28 19:49:55,279 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-01.json
+2025-09-28 19:49:55,279 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-10-02.json
+2025-09-28 19:49:55,279 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-02.json
