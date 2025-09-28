@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bobmoo/collections/meal_collection.dart';
 import 'package:bobmoo/collections/restaurant_collection.dart';
 import 'package:bobmoo/locator.dart';
+import 'package:bobmoo/models/all_cafeterias_widget_data.dart';
 import 'package:bobmoo/models/meal_by_cafeteria.dart';
 import 'package:bobmoo/models/menu_model.dart';
 import 'package:bobmoo/repositories/meal_repository.dart';
@@ -173,31 +174,42 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         return;
       }
 
-      // 3. 데이터 구조 변환
+      // 3. 데이터를 시간대별로 그룹화
       final groupedMeals = _groupMeals(todayMeals);
-      final mealTypes = _orderedMealTypesByDynamicHours(groupedMeals);
 
-      // 4. 첫 번째 식당 선택
-      // TODO: 식당 선택하는 설정 페이지 만들고 연결해야함.
-      final firstType = mealTypes.firstWhere(
-        (t) => groupedMeals[t]!.isNotEmpty,
-        orElse: () => mealTypes.first,
-      );
-      final firstCafeteria = groupedMeals[firstType]!.first;
+      // 4. 오늘 운영하는 모든 식당의 고유한 이름과 정보(Hours)를 추출
+      final Map<String, Hours> uniqueCafeterias = {};
+      groupedMeals.values.expand((list) => list).forEach((mealByCafeteria) {
+        uniqueCafeterias[mealByCafeteria.cafeteriaName] = mealByCafeteria.hours;
+      });
 
-      // 5. 위젯 데이터 생성 및 저장
-      final widgetData = MealWidgetData.fromGrouped(
-        date: DateFormat('yyyy-MM-dd').format(today), // 항상 오늘 날짜
-        cafeteriaName: firstCafeteria.cafeteriaName,
-        grouped: groupedMeals.map((k, v) => MapEntry(k, v)),
-        hours: firstCafeteria.hours,
+      // 5. 각 식당별로 MealWidgetData 객체를 생성하여 리스트에 담기
+      final List<MealWidgetData> allCafeteriasData = [];
+      for (var entry in uniqueCafeterias.entries) {
+        final cafeteriaName = entry.key;
+        final hours = entry.value;
+
+        // 기존 fromGrouped 팩토리 생성자를 완벽하게 재사용
+        final widgetData = MealWidgetData.fromGrouped(
+          date: DateFormat('yyyy-MM-dd').format(today),
+          cafeteriaName: cafeteriaName,
+          grouped: groupedMeals.map((k, v) => MapEntry(k, v)),
+          hours: hours,
+        );
+        allCafeteriasData.add(widgetData);
+      }
+
+      // 6. 모든 식당 데이터가 담긴 리스트를 새로운 컨테이너 모델로 감싸기
+      final widgetDataContainer = AllCafeteriasWidgetData(
+        cafeterias: allCafeteriasData,
       );
 
       if (kDebugMode) {
-        debugPrint('✅ 위젯 데이터 업데이트 성공!');
+        debugPrint('✅ ${allCafeteriasData.length}개 식당 위젯 데이터 업데이트 성공!');
       }
 
-      await WidgetService.saveMealWidgetData(widgetData);
+      // 7. 새로운 서비스 함수를 호출하여 통합된 데이터를 저장
+      await WidgetService.saveAllCafeteriasWidgetData(widgetDataContainer);
     } catch (e) {
       // 위젯 업데이트 실패는 조용히 무시 (사용자 경험에 영향 없음)
       if (kDebugMode) {
