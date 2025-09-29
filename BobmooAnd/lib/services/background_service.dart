@@ -38,10 +38,7 @@ void callbackDispatcher() {
             return Future.value(true); // 데이터가 없으면 성공으로 처리
           }
 
-          // 데이터 가공 로직 (home_screen.dart와 동일)
-          // 주의: _groupMeals와 같은 private 함수는 직접 가져올 수 없으므로,
-          // 이 파일 내에 동일한 내용의 public 함수를 만들거나 home_screen에서 public으로 변경해야 합니다.
-          // 여기서는 설명을 위해 로직이 이미 있다고 가정합니다. (아래에서 실제 구현)
+          // 데이터 가공 로직
           final groupedMeals = groupMeals(todayMeals);
           final Map<String, Hours> uniqueCafeterias = {};
           groupedMeals.values.expand((list) => list).forEach((mealByCafeteria) {

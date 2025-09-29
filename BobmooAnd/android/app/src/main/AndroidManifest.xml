@@ -58,6 +58,14 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/all_cafeterias_widget_info" />
         </receiver>
+
+        <receiver
+            android:name=".WidgetUpdateManager"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.hwoo.bobmoo.action.WIDGET_UPDATE" />
+            </intent-filter>
+        </receiver>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
