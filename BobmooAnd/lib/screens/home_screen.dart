@@ -1,17 +1,23 @@
 import 'dart:io';
 
 import 'package:bobmoo/collections/meal_collection.dart';
-import 'package:bobmoo/collections/restaurant_collection.dart';
 import 'package:bobmoo/locator.dart';
+import 'package:bobmoo/models/all_cafeterias_widget_data.dart';
 import 'package:bobmoo/models/meal_by_cafeteria.dart';
 import 'package:bobmoo/models/menu_model.dart';
 import 'package:bobmoo/repositories/meal_repository.dart';
+import 'package:bobmoo/models/meal_widget_data.dart';
+import 'package:bobmoo/screens/settings_screen.dart';
+import 'package:bobmoo/services/permission_service.dart';
+import 'package:bobmoo/services/widget_service.dart';
+import 'package:bobmoo/utils/meal_utils.dart';
 import 'package:bobmoo/widgets/time_grouped_card.dart';
 import 'package:bobmoo/utils/hours_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -22,22 +28,77 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   // 1. 상태변구 변경: Future 객체로 데이터와 로딩 상태를 한번에 관리
   final MealRepository _repository = locator<MealRepository>();
   late Future<List<Meal>> _mealFuture;
 
   /// 선택한 날짜 저장할 상태 변수
   DateTime _selectedDate = DateTime.now();
+  // 배너 표시 여부를 제어할 상태 변수
+  bool _showPermissionBanner = false;
+  // 사용자가 배너를 닫았는지 여부를 저장할 변수
+  bool _bannerDismissed = false;
 
   /// 화면이 처음 나타날 때 데이터 불러오기
   @override
   void initState() {
     super.initState();
+    // 앱 상태를 확인하기 위한 옵저버 할당
+    WidgetsBinding.instance.addObserver(this);
     // 앱 시작 시 업데이트 확인
     checkForUpdate();
     // initState에서는 setState를 호출하지 않고, Future를 직접 할당합니다.
     _mealFuture = _fetchData();
+
+    // 앱 시작 시에도 위젯 업데이트
+    _updateWidgetOnly();
+
+    // 앱 시작 시 권한 확인
+    _checkPermissionAndShowBanner();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // 앱이 포그라운드로 돌아올 때마다 위젯 업데이트
+    if (state == AppLifecycleState.resumed) {
+      _updateWidgetOnly();
+
+      // 앱이 다시 활성화될 때마다 권한 확인
+      _checkPermissionAndShowBanner();
+    }
+  }
+
+  /// 권한을 확인하고 배너 표시 여부를 결정하는 함수
+  Future<void> _checkPermissionAndShowBanner() async {
+    // SharedPreferences에서 '닫음' 상태를 먼저 읽어옴
+    final prefs = await SharedPreferences.getInstance();
+    _bannerDismissed = prefs.getBool('permissionBannerDismissed') ?? false;
+
+    final hasPermission = await PermissionService.canScheduleExactAlarms();
+    if (mounted) {
+      // 위젯이 화면에 있을 때만 setState 호출
+      setState(() {
+        _showPermissionBanner = !hasPermission && !_bannerDismissed;
+      });
+    }
+  }
+
+  // 배너 닫기 버튼을 눌렀을 때 실행될 함수 (새로 추가)
+  Future<void> _dismissPermissionBanner() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('permissionBannerDismissed', true);
+    setState(() {
+      _showPermissionBanner = false;
+    });
   }
 
   /// 인앱 업데이트를 확인하고, 가능하면 유연한 업데이트를 시작하는 함수
@@ -79,7 +140,12 @@ class _MyHomePageState extends State<MyHomePage> {
   /// Repository에게 식단 데이터를 요청한다.
   Future<List<Meal>> _fetchData() async {
     try {
-      return await _repository.getMealsForDate(_selectedDate);
+      final meals = await _repository.getMealsForDate(_selectedDate);
+
+      // 데이터 로딩 시에도 조건부 위젯 업데이트
+      _updateWidgetOnly();
+
+      return meals;
     } catch (e) {
       if (e is StaleDataException) {
         // 신선도가 떨어진 데이터를 취급하는 경우
@@ -95,7 +161,64 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  // StaleDataException 발생 시 SnackBar를 띄우는 헬퍼 함수
+  /// 위젯 데이터 업데이트 함수 (오늘날짜)
+  Future<void> _updateWidgetOnly() async {
+    // 오늘 날짜인 경우에만 위젯 업데이트
+    try {
+      final today = DateTime.now();
+      // 1. 오늘 날짜의 메뉴 데이터 가져오기
+      final todayMeals = await _repository.getMealsForDate(today);
+
+      // 2. 데이터가 없으면 위젯 업데이트하지 않음
+      if (todayMeals.isEmpty) {
+        return;
+      }
+
+      // 3. 데이터를 시간대별로 그룹화
+      final groupedMeals = groupMeals(todayMeals);
+
+      // 4. 오늘 운영하는 모든 식당의 고유한 이름과 정보(Hours)를 추출
+      final Map<String, Hours> uniqueCafeterias = {};
+      groupedMeals.values.expand((list) => list).forEach((mealByCafeteria) {
+        uniqueCafeterias[mealByCafeteria.cafeteriaName] = mealByCafeteria.hours;
+      });
+
+      // 5. 각 식당별로 MealWidgetData 객체를 생성하여 리스트에 담기
+      final List<MealWidgetData> allCafeteriasData = [];
+      for (var entry in uniqueCafeterias.entries) {
+        final cafeteriaName = entry.key;
+        final hours = entry.value;
+
+        // 기존 fromGrouped 팩토리 생성자를 완벽하게 재사용
+        final widgetData = MealWidgetData.fromGrouped(
+          date: DateFormat('yyyy-MM-dd').format(today),
+          cafeteriaName: cafeteriaName,
+          grouped: groupedMeals.map((k, v) => MapEntry(k, v)),
+          hours: hours,
+        );
+        allCafeteriasData.add(widgetData);
+      }
+
+      // 6. 모든 식당 데이터가 담긴 리스트를 새로운 컨테이너 모델로 감싸기
+      final widgetDataContainer = AllCafeteriasWidgetData(
+        cafeterias: allCafeteriasData,
+      );
+
+      if (kDebugMode) {
+        debugPrint('✅ ${allCafeteriasData.length}개 식당 위젯 데이터 업데이트 성공!');
+      }
+
+      // 7. 새로운 서비스 함수를 호출하여 통합된 데이터를 저장
+      await WidgetService.saveAllCafeteriasWidgetData(widgetDataContainer);
+    } catch (e) {
+      // 위젯 업데이트 실패는 조용히 무시 (사용자 경험에 영향 없음)
+      if (kDebugMode) {
+        debugPrint('위젯 업데이트 실패: $e');
+      }
+    }
+  }
+
+  /// StaleDataException 발생 시 SnackBar를 띄우는 헬퍼 함수
   void _showStaleDataSnackbar(StaleDataException e) {
     // SnackBar는 build가 완료된 후에 띄워야 하므로 addPostFrameCallback 사용
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -163,59 +286,6 @@ class _MyHomePageState extends State<MyHomePage> {
       _selectedDate = picked;
       _loadMeals(); // 새 날짜로 데이터 로드
     }
-  }
-
-  // 5. 데이터 구조 변환 함수: `List<Meal>` -> `Map<String, List<MealByCafeteria>>`
-  /// 기존 UI 위젯과 호환시키기 위한 데이터 변환 로직
-  /// 모든 A, B코스들을 아침, 점심, 저녁으로 분류해서 반환함.
-  Map<String, List<MealByCafeteria>> _groupMeals(List<Meal> meals) {
-    final Map<String, MealByCafeteria> tempMap = {};
-
-    for (var meal in meals) {
-      // isarLink를 통해 Restaurant 정보 로드
-      final restaurant = meal.restaurant.value;
-      if (restaurant == null) continue;
-
-      // 키 생성 (예: "생활관식당_점심")
-      final key = '${restaurant.name}_${meal.mealTime.name}';
-
-      // 특정 시간대(점심)을 담을 공간(바구니)가 있는지 확인하고 없으면 빈 바구니를 만듬
-      if (!tempMap.containsKey(key)) {
-        tempMap[key] = MealByCafeteria(
-          cafeteriaName: restaurant.name,
-          // MealByCafeteria 모델에 맞게 데이터 채우기
-          hours: _createHoursFromRestaurant(restaurant),
-          meals: [],
-        );
-      }
-      // MealItem 모델로 변환하여 추가
-      tempMap[key]!.meals.add(
-        MealItem(course: meal.course, mainMenu: meal.menu, price: meal.price),
-      );
-    }
-
-    // 최종적으로 시간대별로 그룹화
-    final Map<String, List<MealByCafeteria>> grouped = {
-      '아침': [],
-      '점심': [],
-      '저녁': [],
-    };
-    tempMap.forEach((key, value) {
-      if (key.endsWith('breakfast')) grouped['아침']!.add(value);
-      if (key.endsWith('lunch')) grouped['점심']!.add(value);
-      if (key.endsWith('dinner')) grouped['저녁']!.add(value);
-    });
-
-    return grouped;
-  }
-
-  /// Restaurant 객체로부터 Hours 객체를 생성하는 헬퍼 함수
-  Hours _createHoursFromRestaurant(Restaurant r) {
-    return Hours(
-      breakfast: r.breakfastHours,
-      lunch: r.lunchHours,
-      dinner: r.dinnerHours,
-    );
   }
 
   // 6. 기존 시간 정렬 로직을 새 데이터 구조에 맞게 수정
@@ -374,7 +444,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
         // 데이터 로딩 성공
         final meals = snapshot.data!;
-        final groupedMeals = _groupMeals(meals);
+        final groupedMeals = groupMeals(meals);
         final mealTypes = _orderedMealTypesByDynamicHours(groupedMeals);
 
         return RefreshIndicator(
@@ -447,39 +517,91 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         actions: [
-          // TODO: 설정 나중에 페이지 완성되면 버튼 돌려놓기
-          // IconButton(
-          //   icon: const Icon(Icons.settings), // 설정 아이콘
-          //   tooltip: '설정', // 풍선 도움말
-          //   onPressed: () {
-          //     Navigator.of(context).push(
-          //       PageRouteBuilder(
-          //         pageBuilder: (context, animation, secondaryAnimation) =>
-          //             const SettingsScreen(),
-          //         transitionsBuilder:
-          //             (context, animation, secondaryAnimation, child) {
-          //               const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
-          //               const end = Offset.zero; // 원래 위치로 이동
-          //               const curve = Curves.ease; // 부드러운 전환 효과
+          IconButton(
+            icon: const Icon(Icons.settings), // 설정 아이콘
+            tooltip: '설정', // 풍선 도움말
+            onPressed: () {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      const SettingsScreen(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
+                        const end = Offset.zero; // 원래 위치로 이동
+                        const curve = Curves.ease; // 부드러운 전환 효과
 
-          //               var tween = Tween(
-          //                 begin: begin,
-          //                 end: end,
-          //               ).chain(CurveTween(curve: curve));
-          //               var offsetAnimation = animation.drive(tween);
+                        var tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        var offsetAnimation = animation.drive(tween);
 
-          //               return SlideTransition(
-          //                 position: offsetAnimation,
-          //                 child: child,
-          //               );
-          //             },
-          //       ),
-          //     );
-          //   },
-          // ),
+                        return SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        );
+                      },
+                ),
+              );
+            },
+          ),
         ],
       ),
       body: _buildBody(),
+      bottomNavigationBar: _showPermissionBanner
+          ? SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(12.0),
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.blueGrey.shade700,
+                  borderRadius: BorderRadius.circular(32.0),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white70),
+                      onPressed: _dismissPermissionBanner,
+                      tooltip: '닫기',
+                    ),
+                    const Expanded(
+                      child: Text(
+                        '실시간 위젯 업데이트를 위해\n권한이 필요합니다.',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(32.0),
+                        ),
+                      ),
+                      child: const Text(
+                        '설정하기',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      onPressed: () async {
+                        await PermissionService.openAlarmPermissionSettings();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : null, // 권한이 있으면 아무것도 표시하지 않음
     );
   }
 }
