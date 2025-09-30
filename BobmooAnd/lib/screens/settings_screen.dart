@@ -15,8 +15,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late Future<bool> _permissionFuture;
 
   /// 사용 가능한 전체 식당 리스트
-  /// TODO: 나중에 enum 같은걸 만들어서 대학별로 관리하기
-  final List<String> _cafeteriaList = ['학생식당', '생활관식당', '교직원식당'];
+  /// TODO: 나중에 enum 같은걸 만들어서 대학별로 식당목록 관리하기
+  final List<String> _cafeteriaList = ['생활관식당', '학생식당', '교직원식당'];
 
   /// 현재 선택된 대표 식당
   String? _selectedCafeteria;
