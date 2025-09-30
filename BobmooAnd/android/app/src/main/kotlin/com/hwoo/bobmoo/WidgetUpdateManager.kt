@@ -19,9 +19,12 @@ import java.util.Calendar
 class WidgetUpdateManager : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        android.util.Log.d("WidgetUpdate", "onReceive called: ${intent.action}")
+
         when (intent.action) {
             WIDGET_UPDATE_ACTION -> {
                 // 두 위젯을 동시에 업데이트
+                android.util.Log.d("WidgetUpdate", "Starting widget update")
                 CoroutineScope(Dispatchers.Main).launch {
                     updateAllWidgets(context)
                 }
@@ -32,6 +35,8 @@ class WidgetUpdateManager : BroadcastReceiver() {
     }
 
     private suspend fun updateAllWidgets(context: Context) {
+        android.util.Log.d("WidgetUpdate", "updateAllWidgets started")
+
         val glanceManager = GlanceAppWidgetManager(context)
 
         // MealGlanceWidget 업데이트
@@ -45,6 +50,8 @@ class WidgetUpdateManager : BroadcastReceiver() {
         glanceManager.getGlanceIds(AllCafeteriasGlanceWidget::class.java).forEach { glanceId ->
             allCafeteriasWidget.update(context, glanceId)
         }
+
+        android.util.Log.d("WidgetUpdate", "updateAllWidgets completed")
     }
 
     companion object {
