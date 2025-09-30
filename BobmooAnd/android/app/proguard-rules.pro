@@ -6,6 +6,13 @@
 -keep class io.flutter.** { *; }
 -keep class io.flutter.plugins.** { *; }
 
+# Widget 관련 BroadcastReceiver 보존 (필수!)
+-keep class com.hwoo.bobmoo.BootReceiver { *; }
+-keep class com.hwoo.bobmoo.WidgetUpdateManager { *; }
+-keep class com.hwoo.bobmoo.MealGlanceWidgetReceiver { *; }
+-keep class com.hwoo.bobmoo.AllCafeteriasGlanceWidgetReceiver { *; }
+-keep public class * extends android.content.BroadcastReceiver
+
 # 릴리즈 빌드 시 Log.v와 Log.d 호출 코드를 완전히 제거합니다.
 -assumenosideeffects class android.util.Log {
     public static int v(...);
