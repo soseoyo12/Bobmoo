@@ -29,7 +29,6 @@ dependencies:
       name: isar_flutter_libs
       url: https://pub.isar-community.dev/
     version: ^3.0.0
-    
   path_provider: ^2.1.5
   get_it: ^8.2.0
   in_app_update: ^4.2.5
