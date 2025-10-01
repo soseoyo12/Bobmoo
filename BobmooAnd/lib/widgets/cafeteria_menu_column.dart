@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 class CafeteriaMenuColumn extends StatelessWidget {
   final MealByCafeteria data;
   final String mealType;
+  final DateTime selectedDate;
 
   const CafeteriaMenuColumn({
     super.key,
     required this.data,
     required this.mealType,
+    required this.selectedDate,
   });
 
   @override
@@ -39,7 +41,11 @@ class CafeteriaMenuColumn extends StatelessWidget {
               ),
             ),
             SizedBox(width: 8),
-            OpenStatusBadge(hours: data.hours, mealType: mealType),
+            OpenStatusBadge(
+              hours: data.hours,
+              mealType: mealType,
+              selectedDate: selectedDate,
+            ),
           ],
         ),
         const SizedBox(height: 6),
