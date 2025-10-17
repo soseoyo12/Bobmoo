@@ -3,7 +3,7 @@ description: "A new Flutter project."
 publish_to: 'none'
 
 # 버전 설정 versionName+versionCode
-version: 1.0.0+10
+version: 1.0.1+11
 
 isar_version: &isar_version 3.3.0-dev.3 # define the version to be used
 
