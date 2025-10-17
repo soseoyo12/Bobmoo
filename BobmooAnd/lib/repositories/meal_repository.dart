@@ -5,7 +5,7 @@ import 'package:bobmoo/models/menu_model.dart';
 import 'package:bobmoo/services/menu_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
+import 'package:isar_community/isar.dart';
 
 // --- Custom Exceptions ---
 /// 네트워크 오류를 위한 Exception

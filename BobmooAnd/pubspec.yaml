@@ -5,6 +5,8 @@ publish_to: 'none'
 # 버전 설정 versionName+versionCode
 version: 1.0.0+10
 
+isar_version: &isar_version 3.3.0-dev.3 # define the version to be used
+
 environment:
   sdk: ^3.9.2
 
@@ -18,17 +20,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   http: ^1.5.0
   flutter_svg: ^2.2.1
-  isar:
-    hosted:
-      name: isar
-      url: https://pub.isar-community.dev/
-    version: ^3.0.0
 
-  isar_flutter_libs:
-    hosted:
-      name: isar_flutter_libs
-      url: https://pub.isar-community.dev/
-    version: ^3.0.0
+  isar_community: 
+    version: *isar_version
+  isar_community_flutter_libs: # contains Isar Core
+    version: *isar_version
+
   path_provider: ^2.1.5
   get_it: ^8.2.0
   in_app_update: ^4.2.5
@@ -43,12 +40,10 @@ dev_dependencies:
 
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
-  build_runner: ^2.4.13
-  isar_generator:
-    hosted:
-      name: isar_generator
-      url: https://pub.isar-community.dev/
-    version: ^3.0.0
+
+  build_runner: any
+  isar_community_generator: 
+    version: *isar_version
 
 flutter:
   uses-material-design: true

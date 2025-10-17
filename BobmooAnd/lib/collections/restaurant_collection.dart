@@ -1,5 +1,5 @@
 import 'package:bobmoo/collections/meal_collection.dart';
-import 'package:isar/isar.dart';
+import 'package:isar_community/isar.dart';
 
 part 'restaurant_collection.g.dart'; // build_runner가 생성할 파일
 
