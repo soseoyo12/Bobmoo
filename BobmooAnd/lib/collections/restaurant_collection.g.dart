@@ -32,12 +32,9 @@ const RestaurantSchema = CollectionSchema(
       name: r'lunchHours',
       type: IsarType.string,
     ),
-    r'name': PropertySchema(
-      id: 3,
-      name: r'name',
-      type: IsarType.string,
-    )
+    r'name': PropertySchema(id: 3, name: r'name', type: IsarType.string),
   },
+
   estimateSize: _restaurantEstimateSize,
   serialize: _restaurantSerialize,
   deserialize: _restaurantDeserialize,
@@ -54,9 +51,9 @@ const RestaurantSchema = CollectionSchema(
           name: r'name',
           type: IndexType.hash,
           caseSensitive: true,
-        )
+        ),
       ],
-    )
+    ),
   },
   links: {
     r'meals': LinkSchema(
@@ -65,13 +62,14 @@ const RestaurantSchema = CollectionSchema(
       target: r'Meal',
       single: false,
       linkName: r'restaurant',
-    )
+    ),
   },
   embeddedSchemas: {},
+
   getId: _restaurantGetId,
   getLinks: _restaurantGetLinks,
   attach: _restaurantAttach,
-  version: '3.1.8',
+  version: '3.3.0-dev.3',
 );
 
 int _restaurantEstimateSize(
@@ -214,10 +212,7 @@ extension RestaurantQueryWhere
     on QueryBuilder<Restaurant, Restaurant, QWhereClause> {
   QueryBuilder<Restaurant, Restaurant, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: id,
-        upper: id,
-      ));
+      return query.addWhereClause(IdWhereClause.between(lower: id, upper: id));
     });
   }
 
@@ -243,8 +238,10 @@ extension RestaurantQueryWhere
     });
   }
 
-  QueryBuilder<Restaurant, Restaurant, QAfterWhereClause> idGreaterThan(Id id,
-      {bool include = false}) {
+  QueryBuilder<Restaurant, Restaurant, QAfterWhereClause> idGreaterThan(
+    Id id, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: id, includeLower: include),
@@ -252,8 +249,10 @@ extension RestaurantQueryWhere
     });
   }
 
-  QueryBuilder<Restaurant, Restaurant, QAfterWhereClause> idLessThan(Id id,
-      {bool include = false}) {
+  QueryBuilder<Restaurant, Restaurant, QAfterWhereClause> idLessThan(
+    Id id, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: id, includeUpper: include),
@@ -268,56 +267,67 @@ extension RestaurantQueryWhere
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerId,
-        includeLower: includeLower,
-        upper: upperId,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerId,
+          includeLower: includeLower,
+          upper: upperId,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterWhereClause> nameEqualTo(
-      String name) {
+    String name,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'name',
-        value: [name],
-      ));
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'name', value: [name]),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterWhereClause> nameNotEqualTo(
-      String name) {
+    String name,
+  ) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'name',
-              lower: [],
-              upper: [name],
-              includeUpper: false,
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'name',
-              lower: [name],
-              includeLower: false,
-              upper: [],
-            ));
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'name',
+                lower: [],
+                upper: [name],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'name',
+                lower: [name],
+                includeLower: false,
+                upper: [],
+              ),
+            );
       } else {
         return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'name',
-              lower: [name],
-              includeLower: false,
-              upper: [],
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'name',
-              lower: [],
-              upper: [name],
-              includeUpper: false,
-            ));
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'name',
+                lower: [name],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'name',
+                lower: [],
+                upper: [name],
+                includeUpper: false,
+              ),
+            );
       }
     });
   }
@@ -326,53 +336,56 @@ extension RestaurantQueryWhere
 extension RestaurantQueryFilter
     on QueryBuilder<Restaurant, Restaurant, QFilterCondition> {
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      breakfastHoursEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  breakfastHoursEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'breakfastHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'breakfastHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      breakfastHoursGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'breakfastHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      breakfastHoursLessThan(
+  breakfastHoursGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'breakfastHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'breakfastHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      breakfastHoursBetween(
+  breakfastHoursLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'breakfastHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
+  breakfastHoursBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -380,135 +393,140 @@ extension RestaurantQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'breakfastHours',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'breakfastHours',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      breakfastHoursStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  breakfastHoursStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'breakfastHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'breakfastHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      breakfastHoursEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  breakfastHoursEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'breakfastHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'breakfastHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      breakfastHoursContains(String value, {bool caseSensitive = true}) {
+  breakfastHoursContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'breakfastHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'breakfastHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      breakfastHoursMatches(String pattern, {bool caseSensitive = true}) {
+  breakfastHoursMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'breakfastHours',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'breakfastHours',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      breakfastHoursIsEmpty() {
+  breakfastHoursIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'breakfastHours',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'breakfastHours', value: ''),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      breakfastHoursIsNotEmpty() {
+  breakfastHoursIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'breakfastHours',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'breakfastHours', value: ''),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      dinnerHoursEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  dinnerHoursEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'dinnerHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'dinnerHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      dinnerHoursGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'dinnerHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      dinnerHoursLessThan(
+  dinnerHoursGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'dinnerHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'dinnerHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      dinnerHoursBetween(
+  dinnerHoursLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'dinnerHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
+  dinnerHoursBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -516,94 +534,96 @@ extension RestaurantQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'dinnerHours',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'dinnerHours',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      dinnerHoursStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  dinnerHoursStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'dinnerHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'dinnerHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      dinnerHoursEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  dinnerHoursEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'dinnerHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'dinnerHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      dinnerHoursContains(String value, {bool caseSensitive = true}) {
+  dinnerHoursContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'dinnerHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'dinnerHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      dinnerHoursMatches(String pattern, {bool caseSensitive = true}) {
+  dinnerHoursMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'dinnerHours',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'dinnerHours',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      dinnerHoursIsEmpty() {
+  dinnerHoursIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'dinnerHours',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'dinnerHours', value: ''),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      dinnerHoursIsNotEmpty() {
+  dinnerHoursIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'dinnerHours',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'dinnerHours', value: ''),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition> idEqualTo(
-      Id value) {
+    Id value,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'id', value: value),
+      );
     });
   }
 
@@ -612,11 +632,13 @@ extension RestaurantQueryFilter
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -625,11 +647,13 @@ extension RestaurantQueryFilter
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -640,13 +664,15 @@ extension RestaurantQueryFilter
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'id',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
@@ -655,43 +681,49 @@ extension RestaurantQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'lunchHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'lunchHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      lunchHoursGreaterThan(
+  lunchHoursGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'lunchHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'lunchHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      lunchHoursLessThan(
+  lunchHoursLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'lunchHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'lunchHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -703,85 +735,88 @@ extension RestaurantQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'lunchHours',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'lunchHours',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      lunchHoursStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  lunchHoursStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'lunchHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'lunchHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      lunchHoursEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  lunchHoursEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'lunchHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'lunchHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      lunchHoursContains(String value, {bool caseSensitive = true}) {
+  lunchHoursContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'lunchHours',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'lunchHours',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition> lunchHoursMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'lunchHours',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'lunchHours',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      lunchHoursIsEmpty() {
+  lunchHoursIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'lunchHours',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'lunchHours', value: ''),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      lunchHoursIsNotEmpty() {
+  lunchHoursIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'lunchHours',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'lunchHours', value: ''),
+      );
     });
   }
 
@@ -790,11 +825,13 @@ extension RestaurantQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -804,12 +841,14 @@ extension RestaurantQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -819,12 +858,14 @@ extension RestaurantQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -836,14 +877,16 @@ extension RestaurantQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'name',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'name',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -852,11 +895,13 @@ extension RestaurantQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -865,53 +910,59 @@ extension RestaurantQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition> nameContains(
-      String value,
-      {bool caseSensitive = true}) {
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition> nameMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'name',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'name',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition> nameIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'name',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'name', value: ''),
+      );
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition> nameIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'name',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'name', value: ''),
+      );
     });
   }
 }
@@ -922,14 +973,15 @@ extension RestaurantQueryObject
 extension RestaurantQueryLinks
     on QueryBuilder<Restaurant, Restaurant, QFilterCondition> {
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition> meals(
-      FilterQuery<Meal> q) {
+    FilterQuery<Meal> q,
+  ) {
     return QueryBuilder.apply(this, (query) {
       return query.link(q, r'meals');
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      mealsLengthEqualTo(int length) {
+  mealsLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(r'meals', length, true, length, true);
     });
@@ -942,34 +994,28 @@ extension RestaurantQueryLinks
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      mealsIsNotEmpty() {
+  mealsIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(r'meals', 0, false, 999999, true);
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      mealsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
+  mealsLengthLessThan(int length, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(r'meals', 0, true, length, include);
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      mealsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
+  mealsLengthGreaterThan(int length, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(r'meals', length, include, 999999, true);
     });
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterFilterCondition>
-      mealsLengthBetween(
+  mealsLengthBetween(
     int lower,
     int upper, {
     bool includeLower = true,
@@ -977,7 +1023,12 @@ extension RestaurantQueryLinks
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(
-          r'meals', lower, includeLower, upper, includeUpper);
+        r'meals',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
     });
   }
 }
@@ -991,7 +1042,7 @@ extension RestaurantQuerySortBy
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterSortBy>
-      sortByBreakfastHoursDesc() {
+  sortByBreakfastHoursDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'breakfastHours', Sort.desc);
     });
@@ -1043,7 +1094,7 @@ extension RestaurantQuerySortThenBy
   }
 
   QueryBuilder<Restaurant, Restaurant, QAfterSortBy>
-      thenByBreakfastHoursDesc() {
+  thenByBreakfastHoursDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'breakfastHours', Sort.desc);
     });
@@ -1100,30 +1151,36 @@ extension RestaurantQuerySortThenBy
 
 extension RestaurantQueryWhereDistinct
     on QueryBuilder<Restaurant, Restaurant, QDistinct> {
-  QueryBuilder<Restaurant, Restaurant, QDistinct> distinctByBreakfastHours(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Restaurant, Restaurant, QDistinct> distinctByBreakfastHours({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'breakfastHours',
-          caseSensitive: caseSensitive);
+      return query.addDistinctBy(
+        r'breakfastHours',
+        caseSensitive: caseSensitive,
+      );
     });
   }
 
-  QueryBuilder<Restaurant, Restaurant, QDistinct> distinctByDinnerHours(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Restaurant, Restaurant, QDistinct> distinctByDinnerHours({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'dinnerHours', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Restaurant, Restaurant, QDistinct> distinctByLunchHours(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Restaurant, Restaurant, QDistinct> distinctByLunchHours({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lunchHours', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<Restaurant, Restaurant, QDistinct> distinctByName(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Restaurant, Restaurant, QDistinct> distinctByName({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
     });
