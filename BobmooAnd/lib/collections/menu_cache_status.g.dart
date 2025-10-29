@@ -17,17 +17,14 @@ const MenuCacheStatusSchema = CollectionSchema(
   name: r'MenuCacheStatus',
   id: 6003064348504363799,
   properties: {
-    r'date': PropertySchema(
-      id: 0,
-      name: r'date',
-      type: IsarType.dateTime,
-    ),
+    r'date': PropertySchema(id: 0, name: r'date', type: IsarType.dateTime),
     r'lastFetchedAt': PropertySchema(
       id: 1,
       name: r'lastFetchedAt',
       type: IsarType.dateTime,
-    )
+    ),
   },
+
   estimateSize: _menuCacheStatusEstimateSize,
   serialize: _menuCacheStatusSerialize,
   deserialize: _menuCacheStatusDeserialize,
@@ -44,16 +41,17 @@ const MenuCacheStatusSchema = CollectionSchema(
           name: r'date',
           type: IndexType.value,
           caseSensitive: false,
-        )
+        ),
       ],
-    )
+    ),
   },
   links: {},
   embeddedSchemas: {},
+
   getId: _menuCacheStatusGetId,
   getLinks: _menuCacheStatusGetLinks,
   attach: _menuCacheStatusAttach,
-  version: '3.1.8',
+  version: '3.3.0-dev.3',
 );
 
 int _menuCacheStatusEstimateSize(
@@ -113,7 +111,10 @@ List<IsarLinkBase<dynamic>> _menuCacheStatusGetLinks(MenuCacheStatus object) {
 }
 
 void _menuCacheStatusAttach(
-    IsarCollection<dynamic> col, Id id, MenuCacheStatus object) {
+  IsarCollection<dynamic> col,
+  Id id,
+  MenuCacheStatus object,
+) {
   object.id = id;
 }
 
@@ -166,8 +167,10 @@ extension MenuCacheStatusByIndex on IsarCollection<MenuCacheStatus> {
     return putAllByIndex(r'date', objects);
   }
 
-  List<Id> putAllByDateSync(List<MenuCacheStatus> objects,
-      {bool saveLinks = true}) {
+  List<Id> putAllByDateSync(
+    List<MenuCacheStatus> objects, {
+    bool saveLinks = true,
+  }) {
     return putAllByIndexSync(r'date', objects, saveLinks: saveLinks);
   }
 }
@@ -192,17 +195,15 @@ extension MenuCacheStatusQueryWhereSort
 extension MenuCacheStatusQueryWhere
     on QueryBuilder<MenuCacheStatus, MenuCacheStatus, QWhereClause> {
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterWhereClause> idEqualTo(
-      Id id) {
+    Id id,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: id,
-        upper: id,
-      ));
+      return query.addWhereClause(IdWhereClause.between(lower: id, upper: id));
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterWhereClause>
-      idNotEqualTo(Id id) {
+  idNotEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -225,7 +226,7 @@ extension MenuCacheStatusQueryWhere
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterWhereClause>
-      idGreaterThan(Id id, {bool include = false}) {
+  idGreaterThan(Id id, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: id, includeLower: include),
@@ -234,8 +235,9 @@ extension MenuCacheStatusQueryWhere
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterWhereClause> idLessThan(
-      Id id,
-      {bool include = false}) {
+    Id id, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: id, includeUpper: include),
@@ -250,87 +252,95 @@ extension MenuCacheStatusQueryWhere
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerId,
-        includeLower: includeLower,
-        upper: upperId,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerId,
+          includeLower: includeLower,
+          upper: upperId,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterWhereClause> dateEqualTo(
-      DateTime date) {
+    DateTime date,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'date',
-        value: [date],
-      ));
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'date', value: [date]),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterWhereClause>
-      dateNotEqualTo(DateTime date) {
+  dateNotEqualTo(DateTime date) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'date',
-              lower: [],
-              upper: [date],
-              includeUpper: false,
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'date',
-              lower: [date],
-              includeLower: false,
-              upper: [],
-            ));
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'date',
+                lower: [],
+                upper: [date],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'date',
+                lower: [date],
+                includeLower: false,
+                upper: [],
+              ),
+            );
       } else {
         return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'date',
-              lower: [date],
-              includeLower: false,
-              upper: [],
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'date',
-              lower: [],
-              upper: [date],
-              includeUpper: false,
-            ));
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'date',
+                lower: [date],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'date',
+                lower: [],
+                upper: [date],
+                includeUpper: false,
+              ),
+            );
       }
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterWhereClause>
-      dateGreaterThan(
-    DateTime date, {
-    bool include = false,
-  }) {
+  dateGreaterThan(DateTime date, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'date',
-        lower: [date],
-        includeLower: include,
-        upper: [],
-      ));
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'date',
+          lower: [date],
+          includeLower: include,
+          upper: [],
+        ),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterWhereClause>
-      dateLessThan(
-    DateTime date, {
-    bool include = false,
-  }) {
+  dateLessThan(DateTime date, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'date',
-        lower: [],
-        upper: [date],
-        includeUpper: include,
-      ));
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'date',
+          lower: [],
+          upper: [date],
+          includeUpper: include,
+        ),
+      );
     });
   }
 
@@ -341,13 +351,15 @@ extension MenuCacheStatusQueryWhere
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'date',
-        lower: [lowerDate],
-        includeLower: includeLower,
-        upper: [upperDate],
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'date',
+          lower: [lowerDate],
+          includeLower: includeLower,
+          upper: [upperDate],
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -355,170 +367,167 @@ extension MenuCacheStatusQueryWhere
 extension MenuCacheStatusQueryFilter
     on QueryBuilder<MenuCacheStatus, MenuCacheStatus, QFilterCondition> {
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      dateEqualTo(DateTime value) {
+  dateEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'date',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'date', value: value),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      dateGreaterThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  dateGreaterThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'date',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'date',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      dateLessThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  dateLessThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'date',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'date',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      dateBetween(
+  dateBetween(
     DateTime lower,
     DateTime upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'date',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'date',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      idEqualTo(Id value) {
+  idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'id', value: value),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      idGreaterThan(
-    Id value, {
-    bool include = false,
-  }) {
+  idGreaterThan(Id value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      idLessThan(
-    Id value, {
-    bool include = false,
-  }) {
+  idLessThan(Id value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      idBetween(
+  idBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'id',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      lastFetchedAtEqualTo(DateTime value) {
+  lastFetchedAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'lastFetchedAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'lastFetchedAt', value: value),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      lastFetchedAtGreaterThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  lastFetchedAtGreaterThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'lastFetchedAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'lastFetchedAt',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      lastFetchedAtLessThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  lastFetchedAtLessThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'lastFetchedAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'lastFetchedAt',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterFilterCondition>
-      lastFetchedAtBetween(
+  lastFetchedAtBetween(
     DateTime lower,
     DateTime upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'lastFetchedAt',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'lastFetchedAt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -538,21 +547,21 @@ extension MenuCacheStatusQuerySortBy
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterSortBy>
-      sortByDateDesc() {
+  sortByDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'date', Sort.desc);
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterSortBy>
-      sortByLastFetchedAt() {
+  sortByLastFetchedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastFetchedAt', Sort.asc);
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterSortBy>
-      sortByLastFetchedAtDesc() {
+  sortByLastFetchedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastFetchedAt', Sort.desc);
     });
@@ -568,7 +577,7 @@ extension MenuCacheStatusQuerySortThenBy
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterSortBy>
-      thenByDateDesc() {
+  thenByDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'date', Sort.desc);
     });
@@ -587,14 +596,14 @@ extension MenuCacheStatusQuerySortThenBy
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterSortBy>
-      thenByLastFetchedAt() {
+  thenByLastFetchedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastFetchedAt', Sort.asc);
     });
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QAfterSortBy>
-      thenByLastFetchedAtDesc() {
+  thenByLastFetchedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastFetchedAt', Sort.desc);
     });
@@ -610,7 +619,7 @@ extension MenuCacheStatusQueryWhereDistinct
   }
 
   QueryBuilder<MenuCacheStatus, MenuCacheStatus, QDistinct>
-      distinctByLastFetchedAt() {
+  distinctByLastFetchedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lastFetchedAt');
     });
@@ -632,7 +641,7 @@ extension MenuCacheStatusQueryProperty
   }
 
   QueryBuilder<MenuCacheStatus, DateTime, QQueryOperations>
-      lastFetchedAtProperty() {
+  lastFetchedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastFetchedAt');
     });

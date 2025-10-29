@@ -5,7 +5,7 @@ import 'package:bobmoo/collections/restaurant_collection.dart';
 import 'package:bobmoo/repositories/meal_repository.dart';
 import 'package:bobmoo/services/menu_service.dart';
 import 'package:get_it/get_it.dart';
-import 'package:isar/isar.dart';
+import 'package:isar_community/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
 final locator = GetIt.instance;
