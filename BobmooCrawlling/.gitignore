@@ -220,3 +220,4 @@ local.env
 
 # Test files
 test_files/
+out/
