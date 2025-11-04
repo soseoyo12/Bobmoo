@@ -6,7 +6,7 @@ import json
 import os
 from datetime import datetime, timedelta
 
-from ai_api import ocr_image_text
+from ai_api import analyze_text_with_upstage_ai, ocr_image_text
 from extract import parse_day_text
 from image_cropper import crop_and_compose
 from schemas import DailyMenu, Hours, Cafeteria
@@ -35,7 +35,10 @@ def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None) -
     for idx, crop_path in enumerate(crop_paths):
         is_weekend = idx >= 5  # 0..6 -> 토(5), 일(6)
         text = ocr_image_text(crop_path)
-        meals = parse_day_text(text, weekend=is_weekend, price=fixed_price)
+        # Upstage_AI를 통해 하루치 식단 추출
+        meals = analyze_text_with_upstage_ai(text)
+        # 텍스트를 파싱하여 하루치 식단 추출
+        # meals = parse_day_text(text, weekend=is_weekend, price=fixed_price)
         
         date_str = ""
         if week_start and idx < 7:
