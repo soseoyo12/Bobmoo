@@ -58,7 +58,14 @@ def analyze_text_with_upstage_ai(text: str):
                     "입력 HTML에서 하루치 식단을 분석하여 아침/점심/저녁을 정확히 구분하고, "
                     "반드시 response_format(MealsOnly) 스키마에 맞춘 JSON만 출력하세요. "
                     "각 끼니는 코스 배열이며, 각 코스는 {course, mainMenu, price}로 구성됩니다. "
-                    "course는 'A'/'B'/'간편식' 등으로 표기하고, mainMenu는 한글 문자열로 결합하되 각 음식 별로 ', '로 구분하세요."
+                    "course는 반드시 'A'/'B' 중 하나로 표기하고, mainMenu는 한글 문자열로 결합하되 각 음식 이름을 ','로 구분하세요."
+                    "단 간편식은 '간편식'으로 표기하세요. 예시) 마제소바, 추가밥, 가쓰오우동국, 야채튀김, 단무지"
+                    #"또한 후식은 메인코스 뒤에 이어 붙여주세요! 코스를 하나 더 만들지 마세요!"
+                    "메인 코스(A, B)에만 집중해주세요! 간편식, 후식, 플러스바는 응답에 넣지마세요!"
+                    "price는 5600원으로 고정합니다. 반드시 지켜주세요!"
+                    "음식 이름이 모닝브래드2종*잼 이런식으로 되어있다면, '*'를 '&'로 변경하세요!"
+                    "다음 키워드들은 메뉴 이름에서 발견시 제거해주세요! 불필요한 단어입니다."
+                    "제거해야 할 단어: American style, 직화, 뚝), 일품, 누들"
                 )
             },
             {
@@ -67,12 +74,9 @@ def analyze_text_with_upstage_ai(text: str):
                     "다음은 하루치 식단이 포함된 HTML입니다. 태그/표 구조를 해석하여, "
                     "meals.breakfast/lunch/dinner 각각에 해당하는 코스들을 추출하세요. "
                     "출력은 오직 response_format(MealsOnly) 스키마에 맞춘 JSON 한 덩어리만 제공합니다."
+                    "### 식단이 포함된 HTML 코드 ###\n\n" + text
                 )
             },
-            {
-                "role": "user",
-                "content": "### 식단 분석 HTML 코드 ###\n\n" + text
-            }
         ],
         stream=False,
         response_format=response_format
