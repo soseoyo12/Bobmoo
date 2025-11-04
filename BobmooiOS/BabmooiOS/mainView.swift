@@ -285,8 +285,8 @@ struct mainView: View {
                                 .font(.caption)
                                 .foregroundColor(.primary)
                         }
-                        .padding(10)
-                        .frame(width: 125, height: 22, alignment: .center)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
                         .background(Color(.secondarySystemFill))
                         .cornerRadius(59)
                     }
@@ -334,7 +334,7 @@ struct mainView: View {
     private var dateLabel: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "yyyy.MM.dd"
+        formatter.dateFormat = "yyyy년 M월 d일 (E)"
         return formatter.string(from: selectedDate)
     }
     

@@ -1,7 +1,43 @@
 {
-    "date": "2024-09-29",
+    "date": "2025-10-01",
     "school": "인하대학교",
     "cafeterias": [
+        {
+            "name": "생활관 식당(기숙사)",
+            "hours": {
+                "breakfast": "07:30-09:00",
+                "lunch": "11:30-13:30",
+                "dinner": "17:30-19:30"
+            },
+            "meals": {
+                "breakfast": [
+                    {
+                        "course": "A",
+                        "mainMenu": "모닝브래드2종*잼, 스크램블에그, 계절과일",
+                        "price": 3000
+                    }
+                ],
+                "lunch": [
+                    {
+                        "course": "A",
+                        "mainMenu": "쌀밥, 돈육떡볶음, 얼갈이된장국, 배추김치",
+                        "price": 4500
+                    },
+                    {
+                        "course": "B",
+                        "mainMenu": "잡곡밥, 불고기야채비빔밥, 유부장국, 깍두기",
+                        "price": 4500
+                    }
+                ],
+                "dinner": [
+                    {
+                        "course": "A",
+                        "mainMenu": "쌀밥, 오징어까스하이라이스, 미역국, 배추김치",
+                        "price": 5000
+                    }
+                ]
+            }
+        },
         {
             "name": "학생식당(학생회관)",
             "hours": {

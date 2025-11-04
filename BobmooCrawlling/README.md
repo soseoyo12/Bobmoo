@@ -5,7 +5,8 @@ Playwright와 Gemini API를 사용하여 웹사이트에서 식당 메뉴 정보
 ## 기능
 
 - Playwright를 사용한 동적 웹사이트 스크래핑
-- Gemini API를 통한 HTML 텍스트 분석 및 JSON 변환
+- **PDF 자동 감지 및 처리**: 웹사이트에서 PDF 링크를 자동으로 감지하고 다운로드하여 텍스트 추출
+- Gemini API를 통한 HTML/PDF 텍스트 분석 및 JSON 변환
 - **여러 URL 동시 처리**: 한 번에 여러 식당 링크를 입력하여 모든 식당 정보를 하나의 JSON에 병합
 - **날짜별 자동 파일 저장**: 각 날짜별로 모든 식당 정보가 포함된 JSON 파일 생성
 - **자동 병합 기능**: 기존 파일이 있으면 새로운 식당 정보를 자동으로 추가
@@ -18,6 +19,10 @@ Playwright와 Gemini API를 사용하여 웹사이트에서 식당 메뉴 정보
 ```bash
 pip install -r requirements.txt
 ```
+
+새로 추가된 의존성:
+- `PyPDF2`: PDF 파일에서 텍스트 추출
+- `requests`: PDF 파일 다운로드
 
 2. Playwright 브라우저 설치:
 ```bash
@@ -45,6 +50,11 @@ python3 main.py "https://example.com/cafeteria1" "https://example.com/cafeteria2
 ### 실제 사용 예시 (인하대학교)
 ```bash
 python3 main.py "https://www.inha.ac.kr/kr/1072/subview.do" "https://www.inha.ac.kr/kr/1073/subview.do" --school "인하대학교"
+```
+
+### PDF 식단표가 있는 사이트 사용 예시
+```bash
+python3 main.py "https://example.com/menu-pdf" --school "서울대학교"
 ```
 
 ### 옵션 사용법
@@ -129,6 +139,7 @@ python3 main.py "https://example.com/menu1" "https://example.com/menu2" --school
 ├── jsonExample.json     # JSON 예시 파일 (참조 형식)
 ├── check_models.py      # Gemini 모델 확인 스크립트
 ├── test_scraper.py      # 테스트 스크립트
+├── test_pdf_scraper.py  # PDF 처리 기능 테스트 스크립트
 ├── output/              # 출력 디렉토리 (날짜별 JSON 파일)
 └── scraper.log          # 로그 파일
 ```
@@ -141,6 +152,12 @@ python3 main.py "https://example.com/menu1" "https://example.com/menu2" --school
 - ✅ **정확한 형식 준수**: jsonExample.json과 완전히 동일한 형식으로 데이터 생성
 - ✅ **날짜별 파일 생성**: 각 날짜별로 모든 식당 정보가 포함된 완전한 JSON 파일 생성
 - ✅ **향상된 프롬프트**: Gemini API가 정확한 형식으로 데이터를 추출하도록 최적화
+
+### v2.1 업데이트 (PDF 지원)
+- ✅ **PDF 자동 감지**: 웹사이트에서 PDF 링크를 자동으로 감지
+- ✅ **PDF 다운로드**: PDF 파일을 자동으로 다운로드
+- ✅ **PDF 텍스트 추출**: PyPDF2를 사용하여 PDF에서 텍스트 추출
+- ✅ **통합 처리**: HTML과 PDF를 동일한 방식으로 처리하여 JSON 변환
 
 ## 주의사항
 

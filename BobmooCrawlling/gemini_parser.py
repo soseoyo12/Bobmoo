@@ -9,21 +9,23 @@ class GeminiParser:
         self.logger = logging.getLogger(__name__)
         genai.configure(api_key=GEMINI_API_KEY)
         self.model = genai.GenerativeModel('gemini-2.0-flash')
+        self.pro_model = genai.GenerativeModel('gemini-2.5-pro')
         
-    def parse_html_to_json(self, html_text: str, school_name: str = "인하대학교") -> list:
+    def parse_html_to_json(self, content_text: str, school_name: str = "인하대학교", is_pdf: bool = False) -> list:
         """
-        HTML 텍스트를 분석하여 JSON 형태로 변환합니다.
+        HTML 또는 PDF 텍스트를 분석하여 JSON 형태로 변환합니다.
         
         Args:
-            html_text (str): 분석할 HTML 텍스트
+            content_text (str): 분석할 텍스트 (HTML 또는 PDF)
             school_name (str): 학교 이름
+            is_pdf (bool): PDF 텍스트 여부 (True면 2.5 Pro 모델 사용)
             
         Returns:
             list: 변환된 JSON 데이터 리스트 (각 날짜별로 하나의 딕셔너리)
         """
         try:
             prompt = f"""
-다음 HTML 텍스트를 분석하여 식당 메뉴 정보를 추출해주세요. 
+다음 텍스트(HTML 또는 PDF)를 분석하여 식당 메뉴 정보를 추출해주세요. 
 웹사이트에 여러 날짜의 식단이 있다면 각 날짜별로 JSON 배열을 반환해주세요.
 
 정확한 JSON 형태 (jsonExample.json 형식 준수):
@@ -77,8 +79,8 @@ class GeminiParser:
     {{"date": "2024-10-01", "school": "{school_name}", "cafeterias": [...]}}
 ]
 
-HTML 텍스트:
-{html_text[:12000]}
+텍스트 내용:
+{content_text[:12000]}
 
 중요한 형식 규칙 (jsonExample.json과 정확히 동일하게):
 1. 시간은 반드시 "07:30-09:00" 형식으로 표기 (하이픈 사용, ~ 사용 금지)
@@ -92,8 +94,12 @@ HTML 텍스트:
 9. 메뉴명은 쉼표와 띄어쓰기로 구분: "돼지국밥, 동그랑땡조림, 청양감자채전"
 """
 
-            self.logger.info("Gemini API로 HTML 분석 시작")
-            response = self.model.generate_content(prompt)
+            # PDF인 경우 2.5 Pro 모델 사용, HTML인 경우 2.0 Flash 모델 사용
+            selected_model = self.pro_model if is_pdf else self.model
+            model_name = "Gemini 2.5 Pro" if is_pdf else "Gemini 2.0 Flash"
+            
+            self.logger.info(f"Gemini API로 텍스트 분석 시작 ({model_name})")
+            response = selected_model.generate_content(prompt)
             
             # 응답에서 JSON 추출
             json_text = self._extract_json_from_response(response.text)

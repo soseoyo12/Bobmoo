@@ -139,3 +139,98 @@
 2025-09-28 19:49:55,279 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-01.json
 2025-09-28 19:49:55,279 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2024-10-02.json
 2025-09-28 19:49:55,279 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2024-10-02.json
+2025-09-28 20:58:18,677 - __main__ - INFO - 스크래핑 시작 (1/1): https://dorm.inha.ac.kr/dorm/10136/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGZG9ybSUyRjI1MzMlMkYxNjI3ODElMkZhcnRjbFZpZXcuZG8lM0ZwYWdlJTNEMSUyNnNyY2hDb2x1bW4lM0QlMjZzcmNoV3JkJTNEJTI2YmJzQ2xTZXElM0QlMjZiYnNPcGVuV3JkU2VxJTNEJTI2cmdzQmduZGVTdHIlM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnBhc3N3b3JkJTNEJTI2
+2025-09-28 20:58:19,423 - web_scraper - INFO - 페이지 로딩 중: https://dorm.inha.ac.kr/dorm/10136/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGZG9ybSUyRjI1MzMlMkYxNjI3ODElMkZhcnRjbFZpZXcuZG8lM0ZwYWdlJTNEMSUyNnNyY2hDb2x1bW4lM0QlMjZzcmNoV3JkJTNEJTI2YmJzQ2xTZXElM0QlMjZiYnNPcGVuV3JkU2VxJTNEJTI2cmdzQmduZGVTdHIlM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnBhc3N3b3JkJTNEJTI2
+2025-09-28 20:58:29,017 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 20:58:29,049 - web_scraper - INFO - PDF 링크 발견: https://dorm.inha.ac.kr/bbs/dorm/2533/162316/download.do
+2025-09-28 20:58:29,049 - web_scraper - INFO - PDF 링크 발견: https://dorm.inha.ac.kr/bbs/dorm/2533/162317/download.do
+2025-09-28 20:58:29,051 - web_scraper - INFO - PDF 링크 2개 발견, PDF 처리 시작
+2025-09-28 20:58:29,051 - web_scraper - INFO - PDF 다운로드 시작: https://dorm.inha.ac.kr/bbs/dorm/2533/162316/download.do
+2025-09-28 20:58:30,051 - web_scraper - INFO - PDF 다운로드 완료: 235166 bytes
+2025-09-28 20:58:30,054 - web_scraper - INFO - PDF 텍스트 추출 시작
+2025-09-28 20:58:30,134 - web_scraper - INFO - PDF 텍스트 추출 완료: 1633 문자
+2025-09-28 20:58:30,134 - __main__ - INFO - 콘텐츠 스크래핑 완료 (1/1)
+2025-09-28 20:58:30,134 - gemini_parser - INFO - Gemini API로 텍스트 분석 시작
+2025-09-28 21:08:03,799 - __main__ - INFO - 스크래핑 시작 (1/1): https://dorm.inha.ac.kr/dorm/10136/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGZG9ybSUyRjI1MzMlMkYxNjI3ODElMkZhcnRjbFZpZXcuZG8lM0ZwYWdlJTNEMSUyNnNyY2hDb2x1bW4lM0QlMjZzcmNoV3JkJTNEJTI2YmJzQ2xTZXElM0QlMjZiYnNPcGVuV3JkU2VxJTNEJTI2cmdzQmduZGVTdHIlM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnBhc3N3b3JkJTNEJTI2
+2025-09-28 21:08:04,455 - web_scraper - INFO - 페이지 로딩 중: https://dorm.inha.ac.kr/dorm/10136/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGZG9ybSUyRjI1MzMlMkYxNjI3ODElMkZhcnRjbFZpZXcuZG8lM0ZwYWdlJTNEMSUyNnNyY2hDb2x1bW4lM0QlMjZzcmNoV3JkJTNEJTI2YmJzQ2xTZXElM0QlMjZiYnNPcGVuV3JkU2VxJTNEJTI2cmdzQmduZGVTdHIlM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnBhc3N3b3JkJTNEJTI2
+2025-09-28 21:08:14,270 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 21:08:14,296 - web_scraper - INFO - PDF 링크 발견: https://dorm.inha.ac.kr/bbs/dorm/2533/162316/download.do
+2025-09-28 21:08:14,296 - web_scraper - INFO - PDF 링크 발견: https://dorm.inha.ac.kr/bbs/dorm/2533/162317/download.do
+2025-09-28 21:08:14,298 - web_scraper - INFO - PDF 링크 2개 발견, PDF 처리 시작
+2025-09-28 21:08:14,298 - web_scraper - INFO - PDF 다운로드 시작: https://dorm.inha.ac.kr/bbs/dorm/2533/162316/download.do
+2025-09-28 21:08:15,522 - web_scraper - INFO - PDF 다운로드 완료: 235166 bytes
+2025-09-28 21:08:15,524 - web_scraper - INFO - PDF 텍스트 추출 시작
+2025-09-28 21:08:15,606 - web_scraper - INFO - PDF 텍스트 추출 완료: 1633 문자
+2025-09-28 21:08:15,607 - __main__ - INFO - 콘텐츠 스크래핑 완료 (1/1) - PDF
+2025-09-28 21:08:15,607 - gemini_parser - INFO - Gemini API로 텍스트 분석 시작 (Gemini 2.5 Pro)
+2025-09-28 21:08:25,865 - gemini_parser - ERROR - Gemini API 분석 중 오류 발생: Timeout of 600.0s exceeded, last exception: 503 DNS resolution failed for generativelanguage.googleapis.com:443: C-ares status is not ARES_SUCCESS qtype=SRV name=_grpclb._tcp.generativelanguage.googleapis.com: Could not contact DNS servers
+2025-09-28 21:08:25,865 - __main__ - INFO - Gemini API 분석 완료 (1/1) - 1개 날짜의 데이터 추출
+2025-09-28 21:08:25,867 - file_manager - INFO - JSON 파일 저장 완료: output/인하대학교_생활관_2025-09-28.json
+2025-09-28 21:08:25,867 - __main__ - INFO - 파일 저장 완료: output/인하대학교_생활관_2025-09-28.json
+2025-09-28 21:09:35,059 - __main__ - INFO - 스크래핑 시작 (1/1): https://dorm.inha.ac.kr/dorm/10136/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGZG9ybSUyRjI1MzMlMkYxNjI3ODElMkZhcnRjbFZpZXcuZG8lM0ZwYWdlJTNEMSUyNnNyY2hDb2x1bW4lM0QlMjZzcmNoV3JkJTNEJTI2YmJzQ2xTZXElM0QlMjZiYnNPcGVuV3JkU2VxJTNEJTI2cmdzQmduZGVTdHIlM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnBhc3N3b3JkJTNEJTI2
+2025-09-28 21:09:35,739 - web_scraper - INFO - 페이지 로딩 중: https://dorm.inha.ac.kr/dorm/10136/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGZG9ybSUyRjI1MzMlMkYxNjI3ODElMkZhcnRjbFZpZXcuZG8lM0ZwYWdlJTNEMSUyNnNyY2hDb2x1bW4lM0QlMjZzcmNoV3JkJTNEJTI2YmJzQ2xTZXElM0QlMjZiYnNPcGVuV3JkU2VxJTNEJTI2cmdzQmduZGVTdHIlM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnBhc3N3b3JkJTNEJTI2
+2025-09-28 21:09:48,374 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 21:09:48,403 - web_scraper - INFO - PDF 링크 발견: https://dorm.inha.ac.kr/bbs/dorm/2533/162316/download.do
+2025-09-28 21:09:48,403 - web_scraper - INFO - PDF 링크 발견: https://dorm.inha.ac.kr/bbs/dorm/2533/162317/download.do
+2025-09-28 21:09:48,405 - web_scraper - INFO - PDF 링크 2개 발견, PDF 처리 시작
+2025-09-28 21:09:48,405 - web_scraper - INFO - PDF 다운로드 시작: https://dorm.inha.ac.kr/bbs/dorm/2533/162316/download.do
+2025-09-28 21:09:51,139 - web_scraper - INFO - PDF 다운로드 완료: 235166 bytes
+2025-09-28 21:09:51,141 - web_scraper - INFO - PDF 텍스트 추출 시작
+2025-09-28 21:09:51,244 - web_scraper - INFO - PDF 텍스트 추출 완료: 1633 문자
+2025-09-28 21:09:51,244 - __main__ - INFO - 콘텐츠 스크래핑 완료 (1/1) - PDF
+2025-09-28 21:09:51,244 - gemini_parser - INFO - Gemini API로 텍스트 분석 시작 (Gemini 2.5 Pro)
+2025-09-28 21:12:59,706 - __main__ - INFO - 스크래핑 시작 (1/1): https://dorm.inha.ac.kr/dorm/10136/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGZG9ybSUyRjI1MzMlMkYxNjI3ODElMkZhcnRjbFZpZXcuZG8lM0ZwYWdlJTNEMSUyNnNyY2hDb2x1bW4lM0QlMjZzcmNoV3JkJTNEJTI2YmJzQ2xTZXElM0QlMjZiYnNPcGVuV3JkU2VxJTNEJTI2cmdzQmduZGVTdHIlM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnBhc3N3b3JkJTNEJTI2
+2025-09-28 21:13:00,060 - web_scraper - INFO - 페이지 로딩 중: https://dorm.inha.ac.kr/dorm/10136/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGZG9ybSUyRjI1MzMlMkYxNjI3ODElMkZhcnRjbFZpZXcuZG8lM0ZwYWdlJTNEMSUyNnNyY2hDb2x1bW4lM0QlMjZzcmNoV3JkJTNEJTI2YmJzQ2xTZXElM0QlMjZiYnNPcGVuV3JkU2VxJTNEJTI2cmdzQmduZGVTdHIlM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnBhc3N3b3JkJTNEJTI2
+2025-09-28 21:13:15,102 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 21:13:15,132 - web_scraper - INFO - PDF 링크 발견: https://dorm.inha.ac.kr/bbs/dorm/2533/162316/download.do
+2025-09-28 21:13:15,133 - web_scraper - INFO - PDF 링크 발견: https://dorm.inha.ac.kr/bbs/dorm/2533/162317/download.do
+2025-09-28 21:13:15,134 - web_scraper - INFO - PDF 링크 2개 발견, PDF 처리 시작
+2025-09-28 21:13:15,134 - web_scraper - INFO - PDF 다운로드 시작: https://dorm.inha.ac.kr/bbs/dorm/2533/162316/download.do
+2025-09-28 21:13:15,997 - web_scraper - INFO - PDF 다운로드 완료: 235166 bytes
+2025-09-28 21:13:15,998 - web_scraper - INFO - PDF 텍스트 추출 시작
+2025-09-28 21:13:16,075 - web_scraper - INFO - PDF 텍스트 추출 완료: 1633 문자
+2025-09-28 21:13:16,075 - __main__ - INFO - 콘텐츠 스크래핑 완료 (1/1) - PDF
+2025-09-28 21:13:16,075 - gemini_parser - INFO - Gemini API로 텍스트 분석 시작 (Gemini 2.5 Pro)
+2025-09-28 21:18:12,962 - gemini_parser - ERROR - Gemini API 분석 중 오류 발생: Timeout of 600.0s exceeded, last exception: 503 DNS resolution failed for generativelanguage.googleapis.com:443: C-ares status is not ARES_SUCCESS qtype=SRV name=_grpclb._tcp.generativelanguage.googleapis.com: Could not contact DNS servers
+2025-09-28 21:18:12,964 - __main__ - INFO - Gemini API 분석 완료 (1/1) - 1개 날짜의 데이터 추출
+2025-09-28 21:18:12,965 - file_manager - INFO - JSON 파일 저장 완료: output/인하대학교_생활관_2025-09-28.json
+2025-09-28 21:18:12,966 - __main__ - INFO - 파일 저장 완료: output/인하대학교_생활관_2025-09-28.json
+2025-09-28 21:19:47,514 - gemini_parser - ERROR - Gemini API 분석 중 오류 발생: Timeout of 600.0s exceeded, last exception: 503 DNS resolution failed for generativelanguage.googleapis.com:443: C-ares status is not ARES_SUCCESS qtype=A name=generativelanguage.googleapis.com is_balancer=0: Could not contact DNS servers
+2025-09-28 21:19:47,515 - __main__ - INFO - Gemini API 분석 완료 (1/1) - 1개 날짜의 데이터 추출
+2025-09-28 21:19:47,518 - file_manager - INFO - JSON 파일 저장 완료: output/인하대학교_생활관_2025-09-28.json
+2025-09-28 21:19:47,518 - __main__ - INFO - 파일 저장 완료: output/인하대학교_생활관_2025-09-28.json
+2025-09-28 21:20:07,853 - __main__ - INFO - 스크래핑 시작 (1/1): https://dorm.inha.ac.kr/dorm/10136/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGZG9ybSUyRjI1MzMlMkYxNjI3ODElMkZhcnRjbFZpZXcuZG8lM0ZwYWdlJTNEMSUyNnNyY2hDb2x1bW4lM0QlMjZzcmNoV3JkJTNEJTI2YmJzQ2xTZXElM0QlMjZiYnNPcGVuV3JkU2VxJTNEJTI2cmdzQmduZGVTdHIlM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnBhc3N3b3JkJTNEJTI2
+2025-09-28 21:20:08,543 - web_scraper - INFO - 페이지 로딩 중: https://dorm.inha.ac.kr/dorm/10136/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGZG9ybSUyRjI1MzMlMkYxNjI3ODElMkZhcnRjbFZpZXcuZG8lM0ZwYWdlJTNEMSUyNnNyY2hDb2x1bW4lM0QlMjZzcmNoV3JkJTNEJTI2YmJzQ2xTZXElM0QlMjZiYnNPcGVuV3JkU2VxJTNEJTI2cmdzQmduZGVTdHIlM0QlMjZyZ3NFbmRkZVN0ciUzRCUyNmlzVmlld01pbmUlM0RmYWxzZSUyNnBhc3N3b3JkJTNEJTI2
+2025-09-28 21:20:20,613 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 21:20:20,640 - web_scraper - INFO - PDF 링크 발견: https://dorm.inha.ac.kr/bbs/dorm/2533/162316/download.do
+2025-09-28 21:20:20,640 - web_scraper - INFO - PDF 링크 발견: https://dorm.inha.ac.kr/bbs/dorm/2533/162317/download.do
+2025-09-28 21:20:20,642 - web_scraper - INFO - PDF 링크 2개 발견, PDF 처리 시작
+2025-09-28 21:20:20,642 - web_scraper - INFO - PDF 다운로드 시작: https://dorm.inha.ac.kr/bbs/dorm/2533/162316/download.do
+2025-09-28 21:20:23,272 - web_scraper - INFO - PDF 다운로드 완료: 235166 bytes
+2025-09-28 21:20:23,274 - web_scraper - INFO - PDF 텍스트 추출 시작
+2025-09-28 21:20:23,359 - web_scraper - INFO - PDF 텍스트 추출 완료: 1633 문자
+2025-09-28 21:20:23,359 - __main__ - INFO - 콘텐츠 스크래핑 완료 (1/1) - PDF
+2025-09-28 21:20:23,359 - gemini_parser - INFO - Gemini API로 텍스트 분석 시작 (Gemini 2.5 Pro)
+2025-09-28 21:23:09,990 - gemini_parser - ERROR - Gemini API 분석 중 오류 발생: Timeout of 600.0s exceeded, last exception: 503 DNS resolution failed for generativelanguage.googleapis.com:443: C-ares status is not ARES_SUCCESS qtype=SRV name=_grpclb._tcp.generativelanguage.googleapis.com: Could not contact DNS servers
+2025-09-28 21:23:09,991 - __main__ - INFO - Gemini API 분석 완료 (1/1) - 1개 날짜의 데이터 추출
+2025-09-28 21:23:09,992 - file_manager - INFO - JSON 파일 저장 완료: output/인하대학교_생활관_2025-09-28.json
+2025-09-28 21:23:09,992 - __main__ - INFO - 파일 저장 완료: output/인하대학교_생활관_2025-09-28.json
+2025-09-28 21:27:30,991 - __main__ - INFO - 스크래핑 시작 (1/1): https://www.uicoop.ac.kr/main.php?mkey=2&w=2
+2025-09-28 21:27:31,659 - web_scraper - INFO - 페이지 로딩 중: https://www.uicoop.ac.kr/main.php?mkey=2&w=2
+2025-09-28 21:27:32,027 - web_scraper - ERROR - HTML 스크래핑 중 오류 발생: net::ERR_CERT_DATE_INVALID at https://www.uicoop.ac.kr/main.php?mkey=2&w=2
+2025-09-28 21:27:32,027 - web_scraper - ERROR - 콘텐츠 스크래핑 중 오류 발생: net::ERR_CERT_DATE_INVALID at https://www.uicoop.ac.kr/main.php?mkey=2&w=2
+2025-09-28 21:27:32,027 - __main__ - ERROR - 스크래핑 중 오류 발생: net::ERR_CERT_DATE_INVALID at https://www.uicoop.ac.kr/main.php?mkey=2&w=2
+2025-09-28 21:27:44,885 - __main__ - INFO - 스크래핑 시작 (1/1): https://www.uicoop.ac.kr/main.php?mkey=2&w=2
+2025-09-28 21:27:45,125 - web_scraper - INFO - 페이지 로딩 중: https://www.uicoop.ac.kr/main.php?mkey=2&w=2
+2025-09-28 21:27:50,216 - web_scraper - INFO - HTML 스크래핑 완료
+2025-09-28 21:27:50,246 - web_scraper - INFO - PDF 링크가 없음, HTML 처리
+2025-09-28 21:27:50,276 - __main__ - INFO - 콘텐츠 스크래핑 완료 (1/1) - HTML
+2025-09-28 21:27:50,276 - gemini_parser - INFO - Gemini API로 텍스트 분석 시작 (Gemini 2.0 Flash)
+2025-09-28 21:30:19,626 - gemini_parser - ERROR - Gemini API 분석 중 오류 발생: Timeout of 600.0s exceeded, last exception: 503 DNS resolution failed for generativelanguage.googleapis.com:443: C-ares status is not ARES_SUCCESS qtype=SRV name=_grpclb._tcp.generativelanguage.googleapis.com: Could not contact DNS servers
+2025-09-28 21:30:19,627 - __main__ - INFO - Gemini API 분석 완료 (1/1) - 1개 날짜의 데이터 추출
+2025-09-28 21:30:19,630 - file_manager - INFO - JSON 파일 저장 완료: output/Inha_University_2025-09-28.json
+2025-09-28 21:30:19,630 - __main__ - INFO - 파일 저장 완료: output/Inha_University_2025-09-28.json
+2025-09-28 21:37:44,375 - gemini_parser - ERROR - Gemini API 분석 중 오류 발생: Timeout of 600.0s exceeded, last exception: 503 DNS resolution failed for generativelanguage.googleapis.com:443: C-ares status is not ARES_SUCCESS qtype=SRV name=_grpclb._tcp.generativelanguage.googleapis.com: Could not contact DNS servers
+2025-09-28 21:37:44,376 - __main__ - INFO - Gemini API 분석 완료 (1/1) - 1개 날짜의 데이터 추출
+2025-09-28 21:37:44,378 - file_manager - INFO - JSON 파일 저장 완료: output/UICoop_2025-09-28.json
+2025-09-28 21:37:44,378 - __main__ - INFO - 파일 저장 완료: output/UICoop_2025-09-28.json

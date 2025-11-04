@@ -25,7 +25,7 @@ class MenuScraper:
     def __init__(self, output_dir: str = "output"):
         self.web_scraper = WebScraper()
         self.gemini_parser = GeminiParser()
-        self.file_manager = FileManager(output_dir)
+        self.file_manager = FileManager(output_dir) 
         self.logger = logging.getLogger(__name__)
     
     async def scrape_and_save(self, urls: list, school_name: str = "인하대학교", wait_time: int = 3000):
@@ -44,21 +44,24 @@ class MenuScraper:
             for i, url in enumerate(urls, 1):
                 self.logger.info(f"스크래핑 시작 ({i}/{len(urls)}): {url}")
                 
-                # 1. HTML 스크래핑
-                html_content = await self.web_scraper.scrape_html(url, wait_time)
-                self.logger.info(f"HTML 스크래핑 완료 ({i}/{len(urls)})")
+                # 1. 콘텐츠 스크래핑 (HTML 또는 PDF)
+                clean_text, is_pdf = await self.web_scraper.scrape_content(url, wait_time)
+                content_type = "PDF" if is_pdf else "HTML"
+                self.logger.info(f"콘텐츠 스크래핑 완료 ({i}/{len(urls)}) - {content_type}")
                 
-                # 2. HTML 정리
-                clean_text = self.web_scraper.clean_html(html_content)
-                self.logger.info(f"HTML 정리 완료 ({i}/{len(urls)})")
-                
-                # 3. Gemini API로 JSON 변환
-                json_data_list = self.gemini_parser.parse_html_to_json(clean_text, school_name)
+                # 2. Gemini API로 JSON 변환 (PDF면 2.5 Pro, HTML이면 2.0 Flash 사용)
+                json_data_list = self.gemini_parser.parse_html_to_json(clean_text, school_name, is_pdf)
                 self.logger.info(f"Gemini API 분석 완료 ({i}/{len(urls)}) - {len(json_data_list)}개 날짜의 데이터 추출")
                 
-                # 4. 날짜별로 식당 정보 병합
+                # 3. 날짜별로 식당 정보 병합
                 for json_data in json_data_list:
                     date = json_data.get('date')
+                    
+                    # 학교명을 통일 (인하대학교 관련은 모두 "인하대학교"로)
+                    if "인하대학교" in school_name:
+                        json_data['school'] = "인하대학교"
+                        school_name = "인하대학교"
+                    
                     if date not in all_cafeteria_data:
                         all_cafeteria_data[date] = {
                             "date": date,
@@ -73,7 +76,7 @@ class MenuScraper:
                     )
                     all_cafeteria_data[date] = merged_data
             
-            # 5. 각 날짜별로 JSON 파일 저장
+            # 4. 각 날짜별로 JSON 파일 저장
             saved_files = []
             for date, json_data in all_cafeteria_data.items():
                 filepath = self.file_manager.save_json_by_date(json_data, school_name)

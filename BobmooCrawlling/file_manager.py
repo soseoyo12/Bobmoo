@@ -37,6 +37,11 @@ class FileManager:
             
             # 파일명 생성 (한글 제거하고 영문으로 변환)
             safe_school_name = self._sanitize_filename(school_name)
+            
+            # 인하대학교 관련은 모두 "Inha_University"로 통일
+            if "인하대학교" in school_name:
+                safe_school_name = "Inha_University"
+            
             filename = f"{safe_school_name}_{date}.json"
             filepath = os.path.join(self.output_dir, filename)
             
