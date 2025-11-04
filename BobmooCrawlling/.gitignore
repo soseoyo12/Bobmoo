@@ -1,0 +1,26 @@
+# 환경변수 파일
+.env
+
+# API 키가 포함된 파일들
+config.py
+
+# 로그 파일
+*.log
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+
+# 가상환경
+venv/
+env/
+
+# IDE 설정
+.vscode/
+.idea/
+
+# OS 파일
+.DS_Store
+Thumbs.db
+
