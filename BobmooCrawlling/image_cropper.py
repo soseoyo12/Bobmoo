@@ -17,8 +17,8 @@ def crop_and_compose(
     *,
     left_margin_ratio: float = 0.018,
     right_margin_ratio: float = 0.018,
-    top_margin_ratio: float = 0.0,
-    bottom_margin_ratio: float = 0.0,
+    top_margin_ratio: float = 0.072,
+    bottom_margin_ratio: float = 0.12,
     col_ratios: List[float] | None = None,
     background_color: Tuple[int, int, int] = (255, 255, 255),
 ) -> List[str]:
@@ -50,9 +50,13 @@ def crop_and_compose(
     columns: List[Image.Image] = []
     acc = 0.0
     for ratio in col_ratios:
+        # 가로 길이 계산
         x = left + int(acc * crop_width)
         w = int(ratio * crop_width)
-        col_img = img.crop((x, top, x + w, bottom))
+        # 세로 길이 계산
+        y = top
+        h = crop_height
+        col_img = img.crop((x, y, x + w, y + h))
         columns.append(col_img)
         acc += ratio
 
