@@ -6,7 +6,7 @@ import json
 import os
 from datetime import datetime, timedelta
 
-from ai_api import analyze_image_with_gemini, analyze_text_with_upstage_ai, ocr_image_text
+from ai_providers import GeminiProvider
 from image_cropper import crop_and_compose
 from schemas import DailyMenu, Hours, Cafeteria, Meals
 
@@ -29,6 +29,9 @@ def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None) -
         "dinner": cfg.get("hours", "dinner", fallback="17:30-19:30"),
     }
 
+    # GeminiProvider 인스턴스 생성 (다형성을 활용)
+    provider = GeminiProvider()
+    
     output_paths: list[str] = []
     # for문 돌면서 월~일 요일마다 이미지 하나 분석
     for idx, crop_path in enumerate(crop_paths):
@@ -39,38 +42,12 @@ def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None) -
         # meals = analyze_text_with_upstage_ai(text)
         # 텍스트를 파싱하여 하루치 식단 추출
         # meals = parse_day_text(text, weekend=is_weekend, price=fixed_price)
-        meals = analyze_image_with_gemini(crop_path)
+        
+        # GeminiProvider를 사용하여 이미지 분석 및 정규화
+        # 다형성을 활용: analyze_and_normalize() 메서드가 자동으로 정규화 처리
+        meals = provider.analyze_and_normalize(crop_path)
+        print(f"[{provider.get_provider_name()}] {crop_path} 분석 완료")
         print(meals)
-
-        # Gemini 응답 표준화: 문자열(JSON) 또는 리스트 -> Meals 모델 인스턴스로 변환
-        try:
-            raw = meals
-            if isinstance(raw, str):
-                raw = json.loads(raw)
-            if isinstance(raw, list):
-                # 여러 Meals가 배열로 올 경우 아침/점심/저녁 코스들을 병합
-                merged = {"breakfast": [], "lunch": [], "dinner": []}
-                for el in raw:
-                    if isinstance(el, str):
-                        try:
-                            el = json.loads(el)
-                        except Exception:
-                            continue
-                    if isinstance(el, Meals):
-                        el = el.model_dump()
-                    if isinstance(el, dict):
-                        for key in ("breakfast", "lunch", "dinner"):
-                            if isinstance(el.get(key), list):
-                                merged[key].extend(el[key])
-                raw = merged
-            if isinstance(raw, dict):
-                meals = Meals(**raw)
-            elif isinstance(raw, Meals):
-                meals = raw
-            else:
-                raise ValueError(f"Unexpected meals type: {type(raw)}")
-        except Exception as e:
-            raise ValueError(f"Failed to normalize meals for {crop_path}: {e}")
         
         date_str = ""
         if week_start and idx < 7:
