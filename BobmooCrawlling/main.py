@@ -12,7 +12,29 @@ from image_cropper import crop_and_compose
 from schemas import DailyMenu, Hours, Cafeteria, Meals
 
 
-def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None, review: bool = False, auto_open_image: bool = False) -> list[str]:
+def _meals_to_rows(meals: Meals, date_str: str, school: str, cafeteria_name: str, fixed_price: int) -> list[tuple]:
+    """Meals를 DB 인서트용 튜플 리스트로 변환한다.
+
+    포맷: (date, school, cafeteria_name, meal_type, course, mainMenu, price)
+    meal_type ∈ {BREAKFAST, LUNCH, DINNER}
+    price는 고정값(fixed_price)을 사용한다.
+    """
+    rows: list[tuple] = []
+    for meal_type, courses in (("BREAKFAST", meals.breakfast), ("LUNCH", meals.lunch), ("DINNER", meals.dinner)):
+        for c in courses:
+            rows.append((
+                date_str,
+                school,
+                cafeteria_name,
+                meal_type,
+                c.course,
+                c.mainMenu,
+                fixed_price,
+            ))
+    return rows
+
+
+def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None, review: bool = False, auto_open_image: bool = False, rows_only: bool = False) -> list[str]:
     crops_dir = os.path.join(out_dir, "crops")
     os.makedirs(out_dir, exist_ok=True)
 
@@ -35,6 +57,7 @@ def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None, r
     reviewer = ReviewManager(auto_open_image=auto_open_image) if review else None
     
     output_paths: list[str] = []
+    all_rows: list[tuple] = []
     # for문 돌면서 월~일 요일마다 이미지 하나 분석
     for idx, crop_path in enumerate(crop_paths):
         is_weekend = idx >= 5  # 0..6 -> 토(5), 일(6)
@@ -84,24 +107,29 @@ def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None, r
             except Exception:
                 date_str = ""
         
-        # 최종 스키마 구조로 일자별 JSON 생성
-        cafeteria = Cafeteria(
-            name=cafeteria_name,
-            hours=Hours(**hours),
-            meals=meals,
-        )
-        
-        daily_menu = DailyMenu(
-            date=date_str or f"day{idx+1}",
-            school=school,
-            cafeterias=[cafeteria],
-        )
-        
-        per_day_path = os.path.join(out_dir, f"{date_str or f'day{idx+1}'}.json")
-        with open(per_day_path, "w", encoding="utf-8") as f:
-            json.dump(daily_menu.model_dump(), f, ensure_ascii=False, indent=2)
-        
-        output_paths.append(per_day_path)
+        # DB 튜플 포맷 생성 및 즉시 출력
+        rows = _meals_to_rows(meals, date_str or f"day{idx+1}", school, cafeteria_name, fixed_price)
+        all_rows.extend(rows)
+        for r in rows:
+            # ('2025-11-03', '인하대학교', '생활관식당', 'BREAKFAST', 'A', '함박스테이크, ...', 5600),
+            print(repr(r) + ",")
+
+        if not rows_only:
+            # JSON 저장(옵션)
+            cafeteria = Cafeteria(
+                name=cafeteria_name,
+                hours=Hours(**hours),
+                meals=meals,
+            )
+            daily_menu = DailyMenu(
+                date=date_str or f"day{idx+1}",
+                school=school,
+                cafeterias=[cafeteria],
+            )
+            per_day_path = os.path.join(out_dir, f"{date_str or f'day{idx+1}'}.json")
+            with open(per_day_path, "w", encoding="utf-8") as f:
+                json.dump(daily_menu.model_dump(), f, ensure_ascii=False, indent=2)
+            output_paths.append(per_day_path)
     
     return output_paths
 
@@ -113,9 +141,17 @@ def main():
     parser.add_argument("--week", default=None, help="주간 시작일(월) ISO 날짜, e.g. 2025-10-27")
     parser.add_argument("--review", action="store_true", help="검토 모드 활성화")
     parser.add_argument("--open-image", action="store_true", help="검토 시 이미지 자동 열기")
+    parser.add_argument("--rows-only", action="store_true", help="JSON 저장 없이 튜플 출력만 수행")
     args = parser.parse_args()
 
-    output_paths = run_pipeline(args.image, args.out, args.week, review=args.review, auto_open_image=args.open_image)
+    output_paths = run_pipeline(
+        args.image,
+        args.out,
+        args.week,
+        review=args.review,
+        auto_open_image=args.open_image,
+        rows_only=args.rows_only,
+    )
     for path in output_paths:
         print(path)
 
