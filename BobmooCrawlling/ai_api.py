@@ -1,8 +1,14 @@
 import json
+import time
+import random
 import requests
-from config import getAPIkey
+from config import ApiProvider, getAPIkey
 from openai import OpenAI
-from constants import response_format
+from google import genai
+from google.genai import types
+from google.genai import errors as genai_errors
+
+from schemas import Meals
 
 def call_document_parse(input_file) -> dict:
     API_KEY = getAPIkey()
@@ -41,7 +47,7 @@ def ocr_image_text(input_file: str) -> str:
 
 def analyze_text_with_upstage_ai(text: str):
     """하루치 텍스트를 분석하여 Upstage AI를 호출하여 결과를 반환"""
-    API_KEY = getAPIkey()
+    API_KEY = getAPIkey(ApiProvider.UPSTAGE)
     
     client = OpenAI(
         api_key=API_KEY,
@@ -90,3 +96,74 @@ def analyze_text_with_upstage_ai(text: str):
         data = content
     
     return data
+    
+def analyze_image_with_gemini(image_path: str):
+    """
+    하루치 이미지를 분석하여 Gemini API를 호출하여 결과를 반환합니다.
+    
+    503/429 등 일시적 오류 시 지수 백오프 + 지터로 재시도한다.
+    
+    Args:
+        image_path: 하루치 이미지 경로
+    Returns:
+        dict: 하루치 식단 결과
+    """
+    
+    # API Key 가져오기
+    API_KEY = getAPIkey(ApiProvider.GEMINI)
+
+    # Gemini Client 생성
+    client = genai.Client(api_key=API_KEY)
+    
+    # 이미지 파일 읽기
+    with open(image_path, 'rb') as f:
+        image_bytes = f.read()
+
+    # 최대 시도 횟수와 지연 시간 설정
+    max_attempts = 5
+    base_delay_sec = 1.0
+
+    # 오류 저장
+    last_err = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            # Gemini API 호출
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[
+                    types.Part.from_bytes(
+                        data=image_bytes,
+                        mime_type='image/png'
+                    ),
+                    """다음은 하루치 식단이 포함된 이미지입니다. 이미지를 분석하여 하루치 식단을 추출하세요.
+                    course 가격은 5600원으로 고정합니다.
+                    """,
+                ],
+                config={
+                        "response_mime_type": "application/json",
+                        "response_schema": list[Meals],
+                    },
+            )
+            return response.text
+        except genai_errors.ServerError as e:
+            # 503/UNAVAILABLE, 429/TOO_MANY_REQUESTS 등에서 재시도
+            print(f"Gemini API 호출 오류 발생... 재시도중...: {e}")
+            message = getattr(e, "message", str(e))
+            should_retry = any(code in message for code in ["503", "UNAVAILABLE", "429", "TOO_MANY_REQUESTS"]) or True
+            last_err = e
+            if attempt >= max_attempts or not should_retry:
+                break
+            # 지수 백오프 + 지터
+            sleep_sec = (base_delay_sec * (2 ** (attempt - 1))) + random.uniform(0, 0.5)
+            time.sleep(sleep_sec)
+        except Exception as e:
+            # 기타 예외는 한 번 더 시도 후 중단
+            print(f"Gemini API 호출 오류 발생... 재시도중...: {e}")
+            last_err = e    
+            if attempt >= max_attempts:
+                break
+            sleep_sec = (base_delay_sec * (2 ** (attempt - 1))) + random.uniform(0, 0.5)
+            time.sleep(sleep_sec)
+
+    # 모든 시도 실패 시 마지막 에러 재발생
+    raise last_err if last_err else RuntimeError("Gemini 호출 실패: 원인 불명")
