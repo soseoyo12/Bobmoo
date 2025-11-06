@@ -38,7 +38,7 @@ class GeminiProvider(AIProvider):
         self.max_attempts = 5
         self.base_delay_sec = 1.0
     
-    def analyze(self, image_path: str) -> str:
+    def analyze(self, image_path: str, fixed_price: int) -> str:
         """
         이미지를 분석하여 Gemini API를 호출하고 원시 응답(JSON 문자열)을 반환합니다.
         
@@ -46,7 +46,7 @@ class GeminiProvider(AIProvider):
         
         Args:
             image_path: 분석할 이미지 파일 경로
-            
+            fixed_price: 고정 가격(원)
         Returns:
             JSON 문자열 형태의 원시 응답
             
@@ -68,8 +68,44 @@ class GeminiProvider(AIProvider):
                             data=image_bytes,
                             mime_type='image/png'
                         ),
-                        """다음은 하루치 식단이 포함된 이미지입니다. 이미지를 분석하여 하루치 식단을 추출하세요.
-                        course 가격은 5600원으로 고정합니다.
+                        f"""다음은 하루치 식단이 포함된 이미지입니다. 이미지를 분석하여 하루치 식단을 추출하세요.
+                        course 가격은 {fixed_price}원으로 고정합니다.
+                        course 종류는 A/B 중 하나입니다.
+                        
+                        메뉴가 *로 묶여있는 경우 *를 &로 대체합니다.
+                        예시)
+                        모닝브레드2종*잼 -> 모닝브레드2종&잼
+                        그린샐러드*드레싱 -> 그린샐러드&드레싱
+                        시리얼*우유 -> 시리얼&우유
+                        
+                        간편식, 플러스바, 후식은 따로 추가하지 않습니다.
+                        
+                        대신 course 메뉴뒤에 후식 또는 플러스바의 메뉴 이름을 이어 붙입니다.
+                        
+                        ex1)
+                        A: 부대덮밥, 바지락살미역국, 생크림초코와플, 궁채절임
+                        후식: 요구르트
+                        
+                        원하는 결과물: 부대덮밥, 바지락살미역국, 생크림초코와플, 궁채절임, 요구르트
+                        
+                        ex2)
+                        A: 마제소바, 추가밥, 가쓰오우동국, 야채튀김, 단무지
+                        플러스바: 오이소바
+                        
+                        원하는 결과물: 마제소바, 추가밥, 가쓰오우동국, 야채튀김, 단무지, 오이소바
+                        
+                        
+                        점심에 코스가 2개 있을때 플러스바가 하나만 있다면,
+                        플러스바는 두 메뉴 모두에 추가되어야 합니다.
+                        
+                        ex3)
+                        A: 찜닭, 쌀밥, 얼갈이된장국, 미역줄기볶음, 무말랭이무침, 파김치
+                        B: 누들떡볶이, 김가루볶음밥, 핫도그&케찹, 순대찜&소금, 단무지
+                        플러스바: 비빔코너
+                        
+                        원하는 결과물 -> 두 코스 모두 플러스바를 추가합니다.
+                        A: 찜닭, 쌀밥, 얼갈이된장국, 미역줄기볶음, 무말랭이무침, 파김치, 비빔코너
+                        B: 누들떡볶이, 김가루볶음밥, 핫도그&케찹, 순대찜&소금, 단무지, 비빔코너
                         """,
                     ],
                     config={
@@ -158,4 +194,17 @@ class GeminiProvider(AIProvider):
     def get_provider_name(self) -> str:
         """Provider 이름 반환."""
         return "Gemini"
+    
+    def analyze_and_normalize(self, image_path: str, fixed_price: int) -> Meals:
+        """
+        이미지를 분석하고 정규화된 Meals를 반환하는 편의 메서드.
+        
+        Args:
+            image_path: 분석할 이미지 파일 경로
+            fixed_price: 고정 가격(원)
+        Returns:
+            정규화된 Meals 인스턴스
+        """
+        raw_response = self.analyze(image_path, fixed_price)
+        return self.normalize_response(raw_response)
 
