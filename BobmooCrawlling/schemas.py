@@ -16,8 +16,5 @@ class Meals(BaseModel):
 
 __all__ = [
     "Course",
-    "Hours",
     "Meals",
-    "Cafeteria",
-    "DailyMenu",
 ]
