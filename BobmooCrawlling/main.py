@@ -106,26 +106,34 @@ def _extract_week_start_from_filename(image_path: str) -> str | None:
         return None
 
 
-def run_pipeline(image_path: str, out_dir: str, review: bool = False, auto_open_image: bool = False, rows_only: bool = False, use_gui: bool = False):
+def run_pipeline(image_path: str, out_dir: str | None = None, review_mode: str = "none", rows_only: bool = False):
+    # config.ini 로드 (생활관 식당 고정 값)
+    cfg = configparser.ConfigParser()
+    cfg.read(os.path.join(os.path.dirname(__file__), "config.ini"), encoding="utf-8")
+    if out_dir is None:
+        out_dir = cfg.get("settings", "out_dir", fallback="out")
+
     crops_dir = os.path.join(out_dir, "crops")
     os.makedirs(out_dir, exist_ok=True)
 
     crop_paths = crop_and_compose(image_path, crops_dir)
     week_start = _extract_week_start_from_filename(image_path)
-
-    # config.ini 로드 (생활관 식당 고정 값)
-    cfg = configparser.ConfigParser()
-    cfg.read(os.path.join(os.path.dirname(__file__), "config.ini"), encoding="utf-8")
     school = cfg.get("settings", "school", fallback="인하대학교")
     cafeteria_name = cfg.get("settings", "cafeteria_name", fallback="생활관식당")
     fixed_price = cfg.getint("settings", "price", fallback=5600)
 
     # GeminiProvider 인스턴스 생성 (다형성을 활용)
     provider = GeminiProvider()
-    if review:
-        reviewer = GUIReviewManager(auto_open_image=auto_open_image) if use_gui else ReviewManager(auto_open_image=auto_open_image)
-    else:
+    review_mode_normalized = review_mode.lower()
+    if review_mode_normalized == "gui":
+        reviewer = GUIReviewManager()
+    elif review_mode_normalized in ("cli", "cli-auto-open"):
+        auto_open_image = review_mode_normalized == "cli-auto-open"
+        reviewer = ReviewManager(auto_open_image=auto_open_image)
+    elif review_mode_normalized == "none":
         reviewer = None
+    else:
+        raise ValueError(f"지원하지 않는 review_mode 값입니다: {review_mode}")
     
     all_rows: list[tuple] = []
     # for문 돌면서 월~일 요일마다 이미지 하나 분석
@@ -188,18 +196,19 @@ def run_pipeline(image_path: str, out_dir: str, review: bool = False, auto_open_
 def main():
     parser = argparse.ArgumentParser(description="주간 식단 PNG → JSON 추출")
     parser.add_argument("--image", required=True, help="주간 식단 이미지 경로")
-    parser.add_argument("--out", default="out", help="출력 디렉터리")
-    parser.add_argument("--review", action="store_true", help="검토 모드 활성화")
-    parser.add_argument("--open-image", action="store_true", help="검토 시 이미지 자동 열기")
-    parser.add_argument("--gui", action="store_true", help="GUI 모드로 검토 (--review와 함께 사용)")
+    parser.add_argument("--out", default=None, help="출력 디렉터리 (미지정 시 config.ini 설정 사용)")
+    parser.add_argument(
+        "--review-mode",
+        choices=["none", "cli", "cli-auto-open", "gui"],
+        default="none",
+        help="검토 모드를 설정 (예: none, cli, cli-auto-open, gui)",
+    )
     args = parser.parse_args()
 
     run_pipeline(
         args.image,
         args.out,
-        review=args.review,
-        auto_open_image=args.open_image,
-        use_gui=args.gui,
+        review_mode=args.review_mode,
     )
 
 if __name__ == "__main__":

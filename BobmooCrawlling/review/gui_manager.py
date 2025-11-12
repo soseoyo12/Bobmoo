@@ -21,8 +21,7 @@ class GUIReviewManager:
     - 수정은 항상 가능 (텍스트 영역에서 직접 수정)
     """
     
-    def __init__(self, auto_open_image: bool = False):
-        self.auto_open_image = auto_open_image
+    def __init__(self):
         self.result_action: Optional[str] = None
         self.result_meals: Optional[Meals] = None
         self.window: Optional[tk.Tk] = None
