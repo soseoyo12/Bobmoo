@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 from ai_providers import GeminiProvider
 from review.manager import ReviewManager, ReviewItem
+from review.gui_manager import GUIReviewManager
 from image_cropper import crop_and_compose
 from schemas import Meals
 
@@ -49,7 +50,10 @@ def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None, r
 
     # GeminiProvider 인스턴스 생성 (다형성을 활용)
     provider = GeminiProvider()
-    reviewer = ReviewManager(auto_open_image=auto_open_image) if review else None
+    if review:
+        reviewer = GUIReviewManager(auto_open_image=auto_open_image) if use_gui else ReviewManager(auto_open_image=auto_open_image)
+    else:
+        reviewer = None
     
     all_rows: list[tuple] = []
     # for문 돌면서 월~일 요일마다 이미지 하나 분석
@@ -108,6 +112,7 @@ def main():
     parser.add_argument("--week", default=None, help="주간 시작일(월) ISO 날짜, e.g. 2025-10-27")
     parser.add_argument("--review", action="store_true", help="검토 모드 활성화")
     parser.add_argument("--open-image", action="store_true", help="검토 시 이미지 자동 열기")
+    parser.add_argument("--gui", action="store_true", help="GUI 모드로 검토 (--review와 함께 사용)")
     args = parser.parse_args()
 
     run_pipeline(
@@ -116,6 +121,7 @@ def main():
         args.week,
         review=args.review,
         auto_open_image=args.open_image,
+        use_gui=args.gui,
     )
 
 if __name__ == "__main__":
