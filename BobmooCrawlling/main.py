@@ -4,7 +4,9 @@ import argparse
 import configparser
 import json
 import os
+import re
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from ai_providers import GeminiProvider
 from review.manager import ReviewManager, ReviewItem
@@ -84,11 +86,32 @@ def _rows_to_sql(rows: list[tuple], table_name: str = "meal") -> str:
     return "\n".join(sql_lines)
 
 
-def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None, review: bool = False, auto_open_image: bool = False, rows_only: bool = False, use_gui: bool = False):
+def _extract_week_start_from_filename(image_path: str) -> str | None:
+    """이미지 파일명에서 주간 시작일(월요일)을 추출한다.
+
+    허용 포맷:
+        - 2025-11-10.png
+        - 2025_11_10.png
+        - 20251110.png
+    """
+    stem = Path(image_path).stem
+    match = re.search(r"(20\d{2})[-_]?(\d{2})[-_]?(\d{2})", stem)
+    if not match:
+        return None
+
+    year, month, day = map(int, match.groups())
+    try:
+        return datetime(year, month, day).date().isoformat()
+    except ValueError:
+        return None
+
+
+def run_pipeline(image_path: str, out_dir: str, review: bool = False, auto_open_image: bool = False, rows_only: bool = False, use_gui: bool = False):
     crops_dir = os.path.join(out_dir, "crops")
     os.makedirs(out_dir, exist_ok=True)
 
     crop_paths = crop_and_compose(image_path, crops_dir)
+    week_start = _extract_week_start_from_filename(image_path)
 
     # config.ini 로드 (생활관 식당 고정 값)
     cfg = configparser.ConfigParser()
@@ -125,7 +148,7 @@ def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None, r
                 continue
             if action == "retry":
                 # 한 번 더 시도 후 다시 검토 루프로 들어감
-                meals = provider.analyze_and_normalize(crop_path)
+                meals = provider.analyze_and_normalize(crop_path, fixed_price)
                 # 두 번째 결과 바로 한번 더 검토
                 raw_json = json.dumps(meals.model_dump(), ensure_ascii=False, indent=2)
                 action2, updated2 = reviewer.review(ReviewItem(image_path=crop_path, meals=meals, raw_json=raw_json))
@@ -156,7 +179,7 @@ def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None, r
     # 모든 rows를 SQL 파일로 저장
     if all_rows:
         sql_content = _rows_to_sql(all_rows)
-        sql_file_path = os.path.join(out_dir, "insert.sql")
+        sql_file_path = os.path.join(out_dir, f"{week_start.replace('-', '') if week_start else 'unknown'}_insert.sql")
         with open(sql_file_path, "w", encoding="utf-8") as f:
             f.write(sql_content)
         print(f"\nSQL 파일이 저장되었습니다: {sql_file_path}")
@@ -164,9 +187,8 @@ def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None, r
 
 def main():
     parser = argparse.ArgumentParser(description="주간 식단 PNG → JSON 추출")
-    parser.add_argument("--image", required=True, help="주간 식단 PNG 경로")
+    parser.add_argument("--image", required=True, help="주간 식단 이미지 경로")
     parser.add_argument("--out", default="out", help="출력 디렉터리")
-    parser.add_argument("--week", default=None, help="주간 시작일(월) ISO 날짜, e.g. 2025-10-27")
     parser.add_argument("--review", action="store_true", help="검토 모드 활성화")
     parser.add_argument("--open-image", action="store_true", help="검토 시 이미지 자동 열기")
     parser.add_argument("--gui", action="store_true", help="GUI 모드로 검토 (--review와 함께 사용)")
@@ -175,7 +197,6 @@ def main():
     run_pipeline(
         args.image,
         args.out,
-        args.week,
         review=args.review,
         auto_open_image=args.open_image,
         use_gui=args.gui,
