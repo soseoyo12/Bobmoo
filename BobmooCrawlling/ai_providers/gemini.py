@@ -131,7 +131,10 @@ class GeminiProvider(AIProvider):
                 
             except genai_errors.ServerError as e:
                 # 503/UNAVAILABLE, 429/TOO_MANY_REQUESTS 등에서 재시도
-                print(f"Gemini API 호출 오류 발생... 재시도중... ({attempt}/{self.max_attempts}): {e}")
+                if e.code == 503:
+                    print(f"Gemini API 호출 모델 과부화 발생... 재시도중... ({attempt}/{self.max_attempts}): {e}")
+                else:
+                    print(f"Gemini API 호출 오류 발생... 재시도중... ({attempt}/{self.max_attempts}): {e}")
                 message = getattr(e, "message", str(e))
                 should_retry = any(code in message for code in ["503", "UNAVAILABLE", "429", "TOO_MANY_REQUESTS"]) or True
                 last_err = e
