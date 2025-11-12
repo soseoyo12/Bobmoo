@@ -1,10 +1,11 @@
 # BobmooCrawlling – 인하대 생활관 주간 식단 이미지 분석 로직
 
-주간 식단 이미지를 요일별로 분해한 뒤 Gemini Vision을 이용해 메뉴 데이터를 추출하고, SQL 인서트 스크립트로 정리하는 자동화 도구입니다.
+주간 식단 이미지를 요일별로 분해한 뒤 Gemini Vision을 이용해 메뉴 데이터를 추출하고, `MealRecord` 모델에 매핑한 후 SQL 인서트 스크립트로 정리하는 자동화 도구입니다.
 
 ## 주요 기능
 - 주간 표 이미지를 월~일 7장으로 자동 크롭하고 합성합니다.
 - 각 요일 이미지를 Gemini Vision API로 분석해 `Meals` 스키마로 정규화합니다.
+- 정규화된 결과를 DB 레코드 형태의 `MealRecord` 리스트로 변환합니다.
 - 필요하면 CLI/GUI 검토 단계를 거쳐 결과를 수정할 수 있습니다.
 - 날짜별 식단을 SQL `INSERT` 문으로 저장합니다.
 
@@ -51,7 +52,7 @@ python main.py --image test_files/2025-11-10.png --out out --review --open-image
 
 ## 생성물
 - `out/crops/mon.png` … `sun.png`: 합성된 요일별 이미지
-- `out/2025-11-10_insert.sql`: 날짜가 반영된 SQL `INSERT` 스크립트
+- `out/2025-11-10_insert.sql`: 날짜가 반영된 SQL `INSERT` 스크립트 (`MealRecord` 리스트를 직렬화)
 - 검토 모드에서 승인한 `Meals` 결과는 즉시 SQL에 반영됩니다
 
 생성되는 SQL 예시:
@@ -72,7 +73,7 @@ INSERT INTO meal (date, school, cafeteria_name, meal_type, course, mainMenu, pri
 - `image_cropper.py`: 주간 표를 열 단위로 자르고 요일 이미지를 생성합니다.
 - `ai_providers/gemini.py`: Gemini Vision 호출, 재시도, 응답 정규화를 담당합니다.
 - `review/manager.py`, `review/gui_manager.py`: CLI/GUI 리뷰 플로우를 제공합니다.
-- `schemas.py`: `Course`, `Meals` Pydantic 모델 정의.
+- `schemas.py`: `Course`, `Meals`, `MealRecord` Pydantic 모델 정의.
 - `main.py`: 파이프라인 엔트리포인트 및 SQL 저장 로직.
 
 ## 트러블슈팅
