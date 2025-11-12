@@ -5,11 +5,14 @@ from pydantic import BaseModel, Field
 
 
 class Course(BaseModel):
+    """한 끼 식단 내 개별 코스 정보를 표현한다."""
     course: str
     mainMenu: str
     price: int
 
+
 class Meals(BaseModel):
+    """요일별로 아침/점심/저녁 코스 목록을 보관한다."""
     breakfast: List[Course] = Field(default_factory=list)
     lunch: List[Course] = Field(default_factory=list)
     dinner: List[Course] = Field(default_factory=list)

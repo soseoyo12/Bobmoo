@@ -68,17 +68,17 @@ def crop_and_compose(
     out_paths: List[str] = []
     _ensure_dir(output_dir)
 
-    for i, day_col in enumerate(columns[1:8], start=0):
+    day_names = [
+        "mon", "tue", "wed", "thu", "fri", "sat", "sun"
+    ]
+    for day_idx, day_col in enumerate(columns[1:8], start=0):
         composed_width = legend_col.width + day_col.width
         composed_height = max(legend_col.height, day_col.height)
         canvas = Image.new("RGB", (composed_width, composed_height), background_color)
         canvas.paste(legend_col, (0, 0))
         canvas.paste(day_col, (legend_col.width, 0))
 
-        day_names = [
-            "mon", "tue", "wed", "thu", "fri", "sat", "sun"
-        ]
-        out_name = f"{day_names[i]}.png"
+        out_name = f"{day_names[day_idx]}.png"
         out_path = os.path.join(output_dir, out_name)
         canvas.save(out_path)
         out_paths.append(out_path)
