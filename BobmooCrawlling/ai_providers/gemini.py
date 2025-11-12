@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import configparser
 import json
+import os
 import random
 import time
 from typing import Any
@@ -34,9 +36,12 @@ class GeminiProvider(AIProvider):
         self.model = model
         self.client = genai.Client(api_key=self.api_key)
         
+        cfg = configparser.ConfigParser()
+        cfg.read(os.path.join(os.path.dirname(__file__), "../config.ini"), encoding="utf-8")
+        
         # 재시도 설정
-        self.max_attempts = 5
-        self.base_delay_sec = 1.0
+        self.max_attempts = cfg.getint("settings", "max_attempts", fallback=10)
+        self.base_delay_sec = cfg.getfloat("settings", "base_delay_sec", fallback=1.5)
     
     def analyze(self, image_path: str, fixed_price: int) -> str:
         """
@@ -84,14 +89,15 @@ class GeminiProvider(AIProvider):
                         American style, 직화, 뚝), 일품, 누들 과 같은 메뉴가 아닌 불필요한 텍스트는 메뉴에 포함하지 않습니다.
                         만일 메뉴와 상관없는 불필요한 텍스트가 있다면 메뉴에 포함하지 않습니다.
                         ex)
-                        메뉴: 직화 뚝)나주곰탕 OR 뚝)참치김치찌개, 쌀밥, 두부구이&양념장, 멸치청양볶음, 도시락김, 깍두기, 비빔코너"
+                        메뉴: 직화 뚝)나주곰탕 OR 뚝)참치김치찌개, 쌀밥, 두부구이&양념장, 멸치청양볶음, 도시락김, 깍두기, 비빔코너
                         불필요한 텍스트: 직화, 뚝)
                         원하는 결과물: 나주곰탕 or 참치김치찌개, 쌀밥, 두부구이&양념장, 멸치청양볶음, 도시락김, 깍두기, 비빔코너
                         
                         토, 일 주말같은 경우에는 아침은 없고 점심, 저녁만 있습니다.
                         각각 모두 코스는 하나만 있습니다.
-                        주말 점심에는 '주말 점심 간편식'이 표 구조에 맞지 않게 B 코스에 존재하고 있습니다.
-                        이를 무시해주시고 오직 한 코스(A)만 나오도록 해주세요.
+                        특히 주말 점심에는 '주말 점심 간편식'이 표 구조에 맞지 않게 B 코스에 존재하고 있습니다.
+                        이를 무시해주시고 점심과 저녁은 오직 한 코스(A)만 나오도록 해주세요.
+                        또한 점심과 저녁 모두 후식이 없습니다.
                         
                         대신 course 메뉴뒤에 후식 또는 플러스바의 메뉴 이름을 이어 붙입니다.
                         단, 간편식은 메뉴뒤에 이어 붙이지 않습니다.
