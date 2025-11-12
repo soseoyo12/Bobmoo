@@ -1,116 +1,82 @@
-# BobmooCrawlling – 인하대 생활관 주간 식단 이미지 → JSON 추출
+# BobmooCrawlling – 인하대 생활관 주간 식단 이미지 분석 로직
 
-주간 식단 PNG를 자동으로 열(구분+월~일) 단위로 자르고, 각 요일 이미지를 OCR하여 하루 단위 JSON과 주간 요약 JSON을 생성합니다. 점심은 코스 A/B(+간편식)로 출력합니다.
+주간 식단 이미지를 요일별로 분해한 뒤 Gemini Vision을 이용해 메뉴 데이터를 추출하고, SQL 인서트 스크립트로 정리하는 자동화 도구입니다.
+
+## 주요 기능
+- 주간 표 이미지를 월~일 7장으로 자동 크롭하고 합성합니다.
+- 각 요일 이미지를 Gemini Vision API로 분석해 `Meals` 스키마로 정규화합니다.
+- 필요하면 CLI/GUI 검토 단계를 거쳐 결과를 수정할 수 있습니다.
+- 날짜별 식단을 SQL `INSERT` 문으로 저장합니다.
 
 ## 준비물
-- Python 3.10+
-- Pillow, requests, pydantic, python-dotenv (필요시 설치)
-- Upstage API Key (`local.env` 파일에 저장)
+- Python 3.10 이상
+- Google Gemini API 키 (환경 변수 또는 `local.env`)
+- Pillow, google-genai, pydantic 등은 `requirements.txt`로 관리
 
-```env
-# 프로젝트 루트의 local.env
-API_KEY=YOUR_UPSTAGE_API_KEY
+## 설치
+```bash
+python -m venv venv
+venv\Scripts\activate                # PowerShell 예시
+pip install -r requirements.txt
 ```
 
-고정 설정은 `config.ini`로 관리합니다.
+## 설정
+- `local.env`: API 키 저장
+
+```env
+# 프로젝트 루트
+GEMINI_API_KEY=YOUR_API_KEY
+```
+
+- `config.ini`: 학교명, 식당명, 가격을 정의
 
 ```ini
 [settings]
 school=인하대학교
 cafeteria_name=생활관식당
 price=5600
-
-[hours]
-breakfast=07:30-09:00
-lunch=11:30-13:30
-dinner=17:30-19:30
 ```
 
-## 설치
-```bash
-pip install pillow requests pydantic python-dotenv
-```
+식단 이미지는 파일명에 주간 시작일(월요일)을 포함해야 합니다. 예) `2025-11-10.png`, `20251110.png`, `2025_11_10.png`
 
 ## 실행 방법
 ```bash
-python main.py --image path/to/menu.png --out out --week 2025-10-27
+python main.py --image test_files/2025-11-10.png --out out --review --open-image --gui
 ```
-- `--image`: 주간 식단 PNG 경로
-- `--out`: 출력 디렉터리(기본 `out`)
-- `--week`: 월요일 날짜(ISO). 예: `2025-10-27`
+- `--image`: 주간 식단 이미지 경로 (필수, 파일명에서 주차 시작일 추출)
+- `--out`: 출력 디렉터리 (기본값 `out`)
+- `--review`: CLI 기반 검토 플로우 활성화
+- `--open-image`: 검토 시 이미지를 자동으로 엽니다
+- `--gui`: GUI 리뷰 도구 사용 (`--review`와 함께 사용)
 
-### 출력물
-- `out/crops/mon.png` … `sun.png`: 구분+요일 합성 이미지(7장)
-- `out/2025-10-27.json` … `out/2025-11-02.json`: 하루 단위 백엔드 스키마 JSON
-- `out/menu_2025-10-27.json`: 주간 요약 JSON(내부 스키마)
+## 생성물
+- `out/crops/mon.png` … `sun.png`: 합성된 요일별 이미지
+- `out/2025-11-10_insert.sql`: 날짜가 반영된 SQL `INSERT` 스크립트
+- 검토 모드에서 승인한 `Meals` 결과는 즉시 SQL에 반영됩니다
 
-하루 JSON 예시(백엔드 스키마)
-```json
-{
-  "date": "2025-10-30",
-  "school": "인하대학교",
-  "cafeterias": [
-    {
-      "name": "생활관식당",
-      "hours": {
-        "breakfast": "07:30-09:00",
-        "lunch": "11:30-13:30",
-        "dinner": "17:30-19:30"
-      },
-      "meals": {
-        "breakfast": [{"course": "A", "mainMenu": "...", "price": 5600}],
-        "lunch": [
-          {"course": "A", "mainMenu": "...", "price": 5600},
-          {"course": "B", "mainMenu": "...", "price": 5600},
-          {"course": "간편식", "mainMenu": "...", "price": 5600}
-        ],
-        "dinner": [{"course": "A", "mainMenu": "...", "price": 5600}]
-      }
-    }
-  ]
-}
+생성되는 SQL 예시:
+
+```sql
+-- 2025-11-10
+INSERT INTO meal (date, school, cafeteria_name, meal_type, course, mainMenu, price) VALUES
+  ('2025-11-10', '인하대학교', '생활관식당', 'BREAKFAST', 'A', '모닝브레드2종&잼', 5600),
+  ('2025-11-10', '인하대학교', '생활관식당', 'LUNCH', 'A', '미라쥬주제볶음, ...', 5600);
 ```
 
-## 워크플로우
-1. `image_cropper.crop_and_compose`로 입력 PNG를 8열(구분+월~일) 비율 크롭 후, 구분 열과 각 요일 열을 합성하여 7장의 요일 이미지를 생성합니다.
-2. 각 요일 이미지를 `ai_api.ocr_image_text`로 OCR(Upstage document-parse)합니다.
-3. OCR 텍스트를 `extract.parse_day_text`로 파싱하여 섹션별(아침/점심A/점심B/간편식/저녁) 메뉴·kcal·비고를 추출합니다.
-4. `main.run_pipeline`이
-   - 주간 요약 JSON(`schemas.WeekMenu`)을 생성/저장하고,
-   - 동시에 하루 단위 백엔드 스키마 JSON을 생성/저장합니다.
+## 검토 워크플로우
+- `--review`를 켜면 하루 단위 결과가 터미널에 표시됩니다.
+- 옵션에 따라 이미지 자동 열기, 재시도, 수동 수정(임시 JSON 편집), 건너뛰기 등을 선택할 수 있습니다.
+- `--gui`를 함께 사용하면 `review/gui_manager.py`의 Tk 인터페이스로 메뉴를 조정할 수 있습니다.
 
-## 모듈/함수 설명
+## 주요 모듈
+- `image_cropper.py`: 주간 표를 열 단위로 자르고 요일 이미지를 생성합니다.
+- `ai_providers/gemini.py`: Gemini Vision 호출, 재시도, 응답 정규화를 담당합니다.
+- `review/manager.py`, `review/gui_manager.py`: CLI/GUI 리뷰 플로우를 제공합니다.
+- `schemas.py`: `Course`, `Meals` Pydantic 모델 정의.
+- `main.py`: 파이프라인 엔트리포인트 및 SQL 저장 로직.
 
-### `image_cropper.py`
-- `crop_and_compose(input_image_path, output_dir, *, left_margin_ratio=0.018, right_margin_ratio=0.018, top_margin_ratio=0.0, bottom_margin_ratio=0.0, col_ratios=None, background_color=(255,255,255)) -> List[str]`
-  - 주간 식단 이미지를 비율 기반으로 8열로 크롭한 뒤, 구분 열+요일 열을 가로로 붙여 월~일까지 7장의 이미지를 생성합니다.
-  - 반환값: 생성된 이미지 경로 리스트(`[mon.png, ..., sun.png]`).
-
-### `ai_api.py`
-- `call_document_parse(input_file) -> dict`
-  - Upstage `document-digitization` API 호출 결과 원문 JSON 반환.
-- `ocr_image_text(input_file) -> str`
-  - `content.text`가 있으면 텍스트, 없으면 `content.html`을 평문화하여 반환.
-
-### `extract.py`
-- `parse_day_text(text: str, weekend: bool = False) -> schemas.DayMeals`
-  - 텍스트를 라인 정제 후 섹션 헤더를 기준으로 분리하여 `DayMeals` 구성.
-  - 인식 섹션: 아침/점심A/점심B/간편식/저녁. 주말일 경우 아침은 생략 가능.
-
-### `schemas.py`
-- `Meal(items: List[str], kcal: Optional[int], notes: List[str])`
-- `DayMeals(breakfast, lunchA, lunchB, snack, dinner)`
-- `DayMenu(date, weekday, meals)`
-- `WeekMenu(campus, week_range, days)`
-
-### `main.py`
-- `run_pipeline(image_path, out_dir, week_start) -> str`: 전체 파이프라인 실행 후 주간 요약 JSON 경로 반환. 동시에 하루 단위 백엔드 스키마 JSON들을 `out/`에 저장.
-- CLI 엔트리포인트: `python main.py --image ... --out ... --week ...`
-
-## 팁/트러블슈팅
-- 비율 크롭이 어긋나면 `image_cropper.crop_and_compose`의 `left/right/top/bottom_margin_ratio`나 `col_ratios`를 조정하세요.
-- OCR 품질이 낮을 때는 입력 해상도를 높이거나, 원본 대비 선명한 PNG를 사용해 주세요.
-- `local.env`의 API 키가 없으면 `config.getAPIkey()`에서 예외가 발생합니다.
-
-## 라이선스
-사내/개인 용도에 맞게 사용하세요.
+## 트러블슈팅
+- 이미지 크롭이 어긋나면 `crop_and_compose`의 여백/열 비율을 조정하세요.
+- 파일명에 날짜가 없으면 SQL 파일명이 `None_insert.sql`로 생성되므로 반드시 ISO 형태 날짜를 포함하세요.
+- Gemini 에러가 잦으면 API 사용량과 키 설정을 확인하고 재시도 횟수(기본 5회)를 늘려보세요.
+- Windows에서 검토 중 이미지 열기/메모장 편집이 동작하지 않으면 PowerShell을 관리자 권한으로 실행하거나 기본 앱 연결을 확인하세요.
