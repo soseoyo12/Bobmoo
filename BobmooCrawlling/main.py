@@ -57,6 +57,7 @@ def _rows_to_sql(rows: list[tuple], table_name: str = "meal") -> str:
     if not rows:
         return ""
     
+    processed_date = None
     sql_lines = [f"INSERT INTO {table_name} (date, school, cafeteria_name, meal_type, course, mainMenu, price) VALUES"]
     
     for i, row in enumerate(rows):
@@ -68,6 +69,13 @@ def _rows_to_sql(rows: list[tuple], table_name: str = "meal") -> str:
         course_val = _escape_sql_string(row[4]) if row[4] else "NULL"
         mainMenu_val = _escape_sql_string(row[5]) if row[5] else "NULL"
         price_val = str(row[6]) if row[6] is not None else "NULL"
+        
+        # 날짜가 변경되면 주석 추가
+        if not processed_date or processed_date != date_val:
+            if processed_date:
+                sql_lines.append("")
+            sql_lines.append(f"-- {row[0]}")
+            processed_date = date_val
         
         # 마지막 행이 아니면 콤마 추가
         comma = "," if i < len(rows) - 1 else ";"
@@ -141,9 +149,9 @@ def run_pipeline(image_path: str, out_dir: str, week_start: str | None = None, r
         # DB 튜플 포맷 생성 및 sql 파일 저장
         rows = _meals_to_rows(meals, date_str or f"day{idx+1}", school, cafeteria_name, fixed_price)
         all_rows.extend(rows)
-        for r in rows:
-            # ('2025-11-03', '인하대학교', '생활관식당', 'BREAKFAST', 'A', '함박스테이크, ...', 5600),
-            print(repr(r) + ",")
+        # for r in rows:
+        #     # ('2025-11-03', '인하대학교', '생활관식당', 'BREAKFAST', 'A', '함박스테이크, ...', 5600),
+        #     print(repr(r) + ",")
     
     # 모든 rows를 SQL 파일로 저장
     if all_rows:
