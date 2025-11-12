@@ -42,13 +42,11 @@ price=5600
 
 ## 실행 방법
 ```bash
-python main.py --image test_files/2025-11-10.png --out out --review --open-image --gui
+python main.py --image test_files/2025-11-10.png --review-mode gui
 ```
 - `--image`: 주간 식단 이미지 경로 (필수, 파일명에서 주차 시작일 추출)
 - `--out`: 출력 디렉터리 (기본값 `out`)
-- `--review`: CLI 기반 검토 플로우 활성화
-- `--open-image`: 검토 시 이미지를 자동으로 엽니다
-- `--gui`: GUI 리뷰 도구 사용 (`--review`와 함께 사용)
+- `--review-mode`: `none` / `cli` / `cli-auto-open` / `gui` 중 하나 선택
 
 ## 생성물
 - `out/crops/mon.png` … `sun.png`: 합성된 요일별 이미지
@@ -81,3 +79,8 @@ INSERT INTO meal (date, school, cafeteria_name, meal_type, course, mainMenu, pri
 - 파일명에 날짜가 없으면 SQL 파일명이 `None_insert.sql`로 생성되므로 반드시 ISO 형태 날짜를 포함하세요.
 - Gemini 에러가 잦으면 API 사용량과 키 설정을 확인하고 재시도 횟수(기본 5회)를 늘려보세요.
 - Windows에서 검토 중 이미지 열기/메모장 편집이 동작하지 않으면 PowerShell을 관리자 권한으로 실행하거나 기본 앱 연결을 확인하세요.
+
+## 백엔드 연동 시 참고
+- `MealRecord` 모델이 DB `meal` 테이블 스키마(날짜, 학교, 식당, 식사 타입, 코스, 대표 메뉴, 가격)에 대응합니다.
+- AWS 환경에서 추가 인증/저장 로직을 붙일 개발자는 `run_pipeline()`에서 생성되는 `MealRecord` 리스트 또는 SQL 문자열을 후처리하면 됩니다.
+- 검토 단계가 비활성화(`--review-mode none`)되어도 SQL문 결과 파일 생성이 유지되므로 비동기로 호출해도 안정적으로 동작합니다.
