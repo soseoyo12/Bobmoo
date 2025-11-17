@@ -62,7 +62,7 @@ const MealSchema = CollectionSchema(
   getId: _mealGetId,
   getLinks: _mealGetLinks,
   attach: _mealAttach,
-  version: '3.3.0-dev.3',
+  version: '3.3.0',
 );
 
 int _mealEstimateSize(

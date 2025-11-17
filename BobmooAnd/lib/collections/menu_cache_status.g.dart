@@ -51,7 +51,7 @@ const MenuCacheStatusSchema = CollectionSchema(
   getId: _menuCacheStatusGetId,
   getLinks: _menuCacheStatusGetLinks,
   attach: _menuCacheStatusAttach,
-  version: '3.3.0-dev.3',
+  version: '3.3.0',
 );
 
 int _menuCacheStatusEstimateSize(

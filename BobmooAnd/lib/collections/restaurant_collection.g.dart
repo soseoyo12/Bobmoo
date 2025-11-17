@@ -69,7 +69,7 @@ const RestaurantSchema = CollectionSchema(
   getId: _restaurantGetId,
   getLinks: _restaurantGetLinks,
   attach: _restaurantAttach,
-  version: '3.3.0-dev.3',
+  version: '3.3.0',
 );
 
 int _restaurantEstimateSize(
