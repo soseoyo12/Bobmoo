@@ -20,10 +20,10 @@ object MealWidgetDataParser {
     fun parseMealInfo(data: String?, now: Calendar): MealInfo {
         if (data == null) {
             return MealInfo(
-                periodLabel = "식사 정보",
+                periodLabel = "어라..?",
                 hoursLabel = "--:--",
-                cafeteriaName = "식당 정보 없음",
-                courses = listOf("앱을 실행하여 데이터를 동기화 해주세요."),
+                cafeteriaName = "식단 정보가 없어요 😢",
+                courses = listOf("오늘은 운영하지 않거나", "아직 등록 전일 수 있어요."),
                 status = ""
             )
         }
