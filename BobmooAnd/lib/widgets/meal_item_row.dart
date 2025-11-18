@@ -25,6 +25,23 @@ class MealItemRow extends StatelessWidget {
             child: Text(
               meal.mainMenu,
               style: const TextStyle(fontSize: 14),
+              // TODO: 메인 메뉴 한줄로 하고 ...을 뒤에 붙히도록 할지 고민
+              // maxLines: 1,
+              // overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(
+            width: 4,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              "${meal.price}원",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade500,
+              ),
             ),
           ),
         ],
