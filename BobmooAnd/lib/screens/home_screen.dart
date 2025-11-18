@@ -169,16 +169,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       // 1. 오늘 날짜의 메뉴 데이터 가져오기
       final todayMeals = await _repository.getMealsForDate(today);
 
-      // 2. 데이터가 없으면 위젯 업데이트하지 않음
-      if (todayMeals.isEmpty) {
-        return;
-      }
+      // [수정됨] 데이터가 비어있어도(휴일 등) 위젯 정보를 갱신해야 하므로
+      // if (todayMeals.isEmpty) { return; } 코드를 삭제했습니다.
+      // 이제 데이터가 없으면 빈 리스트가 저장되어 위젯에서 "정보 없음" UI를 띄울 수 있습니다.
 
       // 3. 데이터를 시간대별로 그룹화
       final groupedMeals = groupMeals(todayMeals);
 
       // 4. 오늘 운영하는 모든 식당의 고유한 이름과 정보(Hours)를 추출
       final Map<String, Hours> uniqueCafeterias = {};
+
+      // groupedMeals가 비어있으면 이 반복문은 실행되지 않음 -> 안전함
       groupedMeals.values.expand((list) => list).forEach((mealByCafeteria) {
         uniqueCafeterias[mealByCafeteria.cafeteriaName] = mealByCafeteria.hours;
       });
@@ -198,6 +199,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         );
         allCafeteriasData.add(widgetData);
       }
+
+      // [핵심]
+      // 데이터가 없으면 allCafeteriasData는 빈 리스트 []가 됩니다.
+      // 이 빈 리스트를 그대로 저장하면, 위젯은 데이터를 찾지 못합니다.
 
       // 6. 모든 식당 데이터가 담긴 리스트를 새로운 컨테이너 모델로 감싸기
       final widgetDataContainer = AllCafeteriasWidgetData(
