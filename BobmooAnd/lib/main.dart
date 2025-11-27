@@ -4,6 +4,7 @@ import 'package:bobmoo/screens/home_screen.dart';
 import 'package:bobmoo/services/background_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -39,26 +40,32 @@ class BobMooApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: '밥묵자',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromRGBO(204, 221, 228, 1),
-        ),
-        useMaterial3: true,
-      ),
-      locale: const Locale('ko', 'KR'), // 앱의 기본 언어를 한국어로 설정
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('ko', 'KR'),
-        // Locale('en', 'US'), // 지원할 언어 목록에 한국어와 영어를 나중에
-      ],
-      home: const MyHomePage(title: '인하대학교'),
+    return ScreenUtilInit(
+      designSize: const Size(402, 874),
+      minTextAdapt: true,
+      builder: (context, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: '밥묵자',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Color.fromRGBO(204, 221, 228, 1),
+            ),
+            useMaterial3: true,
+          ),
+          locale: const Locale('ko', 'KR'), // 앱의 기본 언어를 한국어로 설정
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('ko', 'KR'),
+            // Locale('en', 'US'), // 지원할 언어 목록에 한국어와 영어를 나중에
+          ],
+          home: const MyHomePage(title: '인하대학교'),
+        );
+      },
     );
   }
 }
