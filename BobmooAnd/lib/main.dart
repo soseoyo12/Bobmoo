@@ -1,3 +1,4 @@
+import 'package:bobmoo/constants/app_colors.dart';
 import 'package:bobmoo/constants/app_constants.dart';
 import 'package:bobmoo/locator.dart';
 import 'package:bobmoo/screens/home_screen.dart';
@@ -49,8 +50,35 @@ class BobMooApp extends StatelessWidget {
           title: '밥묵자',
           theme: ThemeData(
             fontFamily: 'Pretendard',
+
+            // 배경색 설정
+            scaffoldBackgroundColor: AppColors.background,
+
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Color.fromRGBO(204, 221, 228, 1),
+              // [기본 설정]
+              seedColor: AppColors.schoolColor,
+              brightness: Brightness.light,
+
+              // [대학교 색상]
+              // primary: 가장 중요한 요소 (활성 버튼, 앱바 등)
+              primary: AppColors.schoolColor,
+              onPrimary: AppColors.white, // primary 글자색
+              // [표면/컴포넌트 컬러]
+              // surface: 카드, 바텀시트, 다이얼로그의 기본 배경색
+              surface: AppColors.white,
+              onSurface: AppColors.black,
+
+              // outline: 입력창 테두리, 카드 외곽선, 리스트 구분선
+              outline: AppColors.grayDividerColor,
+
+              // 색상 생성 알고리즘을 왜곡없이 그대로 사용
+              dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+            ),
+            cardTheme: CardThemeData(
+              color: AppColors.white,
+              surfaceTintColor: Colors.transparent,
+              elevation: 2,
+              shadowColor: Colors.black.withValues(alpha: 0.1),
             ),
             useMaterial3: true,
           ),
