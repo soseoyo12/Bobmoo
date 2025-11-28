@@ -48,6 +48,7 @@ class BobMooApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: '밥묵자',
           theme: ThemeData(
+            fontFamily: 'Pretendard',
             colorScheme: ColorScheme.fromSeed(
               seedColor: Color.fromRGBO(204, 221, 228, 1),
             ),
