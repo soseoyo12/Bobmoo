@@ -15,6 +15,7 @@ import 'package:bobmoo/widgets/time_grouped_card.dart';
 import 'package:bobmoo/utils/hours_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -423,7 +424,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text("등록된 식단 정보가 없습니다."),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 ElevatedButton(
                   onPressed: () => setState(() {
                     _refreshMeals();
@@ -455,6 +456,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           onRefresh: _refreshMeals, // 당겨서 새로고침 기능 연결
           child: ListView.builder(
             itemCount: mealTypes.length,
+            padding: EdgeInsets.symmetric(
+              horizontal: 21.w,
+              vertical: 23.h,
+            ),
             itemBuilder: (context, index) {
               final mealType = mealTypes[index];
               final mealsByCafeteria = groupedMeals[mealType];
@@ -462,10 +467,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               if (mealsByCafeteria == null || mealsByCafeteria.isEmpty) {
                 return const SizedBox.shrink();
               }
-              return TimeGroupedCard(
-                title: mealType,
-                mealData: mealsByCafeteria,
-                selectedDate: _selectedDate,
+              return Padding(
+                padding: EdgeInsets.only(bottom: 30.h),
+                child: TimeGroupedCard(
+                  title: mealType,
+                  mealData: mealsByCafeteria,
+                  selectedDate: _selectedDate,
+                ),
               );
             },
           ),
@@ -478,51 +486,82 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 100,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 앱의 왼쪽 위
-            Text(
-              widget.title,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 30),
-            ),
-            SizedBox(height: 4),
-            TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.lightBlue.shade100,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
+        toolbarHeight: 103.h,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        shadowColor: Colors.black,
+        elevation: 4.0.h,
+        surfaceTintColor: Colors.transparent,
+        // 스크롤 할 때 색 바뀌는 효과 제거
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        // Appbar의 기본 여백 제거
+        titleSpacing: 0,
+        actionsPadding: EdgeInsets.only(right: 26.w),
+        title: Padding(
+          padding: EdgeInsets.only(left: 26.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 20.h),
+              // 앱의 왼쪽 위
+              Text(
+                widget.title,
+                style: TextStyle(
+                  color: Colors.white,
+                  // 자간 5%
+                  letterSpacing: 1.5.sp,
+                  // 행간 170%
+                  height: 1.7.sp,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 30.sp,
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 4.0,
-                ),
-                minimumSize: Size.zero, // 최소 사이즈 제거
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap, // 탭 영역을 최소화
               ),
-              onPressed: () => _selectDate(context), // 탭하면 _selectDate 함수 호출
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(width: 4),
-                  Text(
-                    DateFormat(
-                      'yyyy년 MM월 dd일 (E)',
-                      'ko_KR',
-                    ).format(_selectedDate), // 날짜 포맷
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.white.withValues(alpha: 0.1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(59.r),
                   ),
-                ],
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 7.w,
+                    vertical: 2.h,
+                  ),
+                  minimumSize: Size.zero, // 최소 사이즈 제거
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap, // 탭 영역을 최소화
+                ),
+                onPressed: () => _selectDate(context), // 탭하면 _selectDate 함수 호출
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      DateFormat(
+                        'yyyy년 MM월 dd일 (E)',
+                        'ko_KR',
+                      ).format(_selectedDate), // 날짜 포맷
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              SizedBox(
+                height: 13.h,
+              ),
+            ],
+          ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings), // 설정 아이콘
+            icon: Icon(
+              Icons.menu,
+              size: 33.w,
+              color: Colors.white,
+            ), // 설정 아이콘
+            // iconSize: 33.w,
             tooltip: '설정', // 풍선 도움말
             onPressed: () {
               Navigator.of(context).push(
@@ -549,17 +588,24 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 ),
               );
             },
+            padding: EdgeInsets.zero, // 내부 패딩 제거
+            constraints: const BoxConstraints(), // 최소 크기 제한(48px) 제거
+            style: IconButton.styleFrom(
+              tapTargetSize:
+                  MaterialTapTargetSize.shrinkWrap, // 3. 터치 영역을 내용물에 딱 맞춤
+            ),
           ),
         ],
       ),
       body: _buildBody(),
       bottomNavigationBar: _showPermissionBanner
           ? SafeArea(
+              // TODO: 나중에 아래 권한 알림창도 리메이크
               child: Container(
-                padding: const EdgeInsets.all(12.0),
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
+                padding: EdgeInsets.all(8.w),
+                margin: EdgeInsets.symmetric(
+                  horizontal: 16.0.w,
+                  vertical: 8.0.h,
                 ),
                 decoration: BoxDecoration(
                   color: Colors.blueGrey.shade700,
