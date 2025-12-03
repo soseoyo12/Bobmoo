@@ -235,7 +235,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               e.message,
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-            backgroundColor: Colors.orange.shade700,
             behavior: SnackBarBehavior.floating,
           ),
         );

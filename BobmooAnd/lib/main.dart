@@ -62,11 +62,11 @@ class BobMooApp extends StatelessWidget {
               // [대학교 색상]
               // primary: 가장 중요한 요소 (활성 버튼, 앱바 등)
               primary: AppColors.schoolColor,
-              onPrimary: AppColors.white, // primary 글자색
+              onPrimary: Colors.white, // primary 글자색
               // [표면/컴포넌트 컬러]
               // surface: 카드, 바텀시트, 다이얼로그의 기본 배경색
-              surface: AppColors.white,
-              onSurface: AppColors.black,
+              surface: Colors.white,
+              onSurface: Colors.black,
 
               // outline: 입력창 테두리, 카드 외곽선, 리스트 구분선
               outline: AppColors.grayDividerColor,
@@ -75,7 +75,7 @@ class BobMooApp extends StatelessWidget {
               dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
             ),
             cardTheme: CardThemeData(
-              color: AppColors.white,
+              color: Colors.white,
               surfaceTintColor: Colors.transparent,
               elevation: 2,
               shadowColor: Colors.black.withValues(alpha: 0.1),

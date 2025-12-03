@@ -9,7 +9,6 @@ class AppColors {
   // static const Color subColor = Color(0xFF196BB4);
 
   // --- 텍스트 컬러 (Grayscale) ---
-  static const Color black = Color(0xFF111111); // 완전 검정보다는 약간 연한 검정
   static const Color greyTextColor = Color(0xFF8B8787);
   static const Color grayDividerColor = Color(0xFF797979); // 리스트 구분선
 
@@ -20,5 +19,4 @@ class AppColors {
 
   // --- 배경 컬러 ---
   static const Color background = Color(0xFFF5F5F5); // 앱 전체 배경 회색
-  static const Color white = Colors.white;
 }
