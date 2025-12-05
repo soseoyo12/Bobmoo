@@ -1,3 +1,4 @@
+import 'package:bobmoo/constants/app_colors.dart';
 import 'package:bobmoo/models/meal_by_cafeteria.dart';
 import 'package:bobmoo/widgets/cafeteria_menu_column.dart';
 import 'package:flutter/material.dart';
@@ -63,10 +64,10 @@ class TimeGroupedCard extends StatelessWidget {
               },
               separatorBuilder: (BuildContext context, int index) {
                 // 각 아이템 사이에 들어갈 구분선 위젯을 반환
-                return const Divider(
-                  height: 12,
+                return Divider(
+                  height: 10.h,
                   thickness: 1.5,
-                  color: Color.fromRGBO(183, 202, 215, 1),
+                  color: AppColors.grayDividerColor,
                 );
               },
             ),

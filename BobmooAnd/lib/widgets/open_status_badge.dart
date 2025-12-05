@@ -1,3 +1,4 @@
+import 'package:bobmoo/constants/app_colors.dart';
 import 'package:bobmoo/models/menu_model.dart';
 import 'package:flutter/material.dart';
 import 'package:bobmoo/utils/hours_parser.dart';
@@ -34,19 +35,19 @@ class OpenStatusBadge extends StatelessWidget {
       case OpenStatus.before:
         return _StatusBadge(
           text: '운영전',
-          backgroundColor: const Color(0xFF909090),
+          backgroundColor: AppColors.statusGray,
           textColor: Colors.white,
         );
       case OpenStatus.open:
         return _StatusBadge(
           text: '운영중',
-          backgroundColor: Colors.lightBlue.shade600,
+          backgroundColor: AppColors.statusBlue,
           textColor: Colors.white,
         );
       case OpenStatus.after:
         return _StatusBadge(
           text: '운영종료',
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.statusRed,
           textColor: Colors.white,
         );
       case OpenStatus.unknown:
