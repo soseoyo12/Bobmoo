@@ -32,10 +32,10 @@ class CafeteriaMenuColumn extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
-                // 자간 4%
-                letterSpacing: 18.sp * 0.04,
-                // 행간 21px
-                height: 1.0,
+                // 자간 5%
+                letterSpacing: 18.sp * 0.05,
+                // 행간 170%
+                height: 1.7,
               ),
             ),
             SizedBox(width: 3.w),
