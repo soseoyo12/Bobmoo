@@ -81,8 +81,12 @@ class _StatusBadge extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 10,
+          fontSize: 11.sp,
           fontWeight: FontWeight.w500,
+          // 자간 4%
+          letterSpacing: 11.sp * 0.04,
+          // 행간 21px
+          height: 2.0,
           color: textColor,
         ),
       ),

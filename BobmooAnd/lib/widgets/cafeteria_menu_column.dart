@@ -24,24 +24,32 @@ class CafeteriaMenuColumn extends StatelessWidget {
       children: [
         // 식당 이름
         Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
           children: [
             Text(
               data.cafeteriaName,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                // 자간 4%
+                letterSpacing: 18.sp * 0.04,
+                // 행간 21px
+                height: 1.0,
+              ),
             ),
             SizedBox(width: 3.w),
             Expanded(
               child: Text(
                 _hoursTextForMealType(data.hours, mealType),
-                style: const TextStyle(
-                  fontSize: 12,
+                style: TextStyle(
+                  fontSize: 9.sp,
                   color: Colors.black54,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            SizedBox(width: 8),
             OpenStatusBadge(
               hours: data.hours,
               mealType: mealType,

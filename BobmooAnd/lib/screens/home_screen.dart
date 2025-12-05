@@ -509,8 +509,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 widget.title,
                 style: TextStyle(
                   color: Colors.white,
-                  // 자간 5%
-                  letterSpacing: 1.5.sp,
+                  // 자간 5% (픽셀 계산)
+                  letterSpacing: 30.sp * 0.05,
                   // 행간 170%
                   height: 1.7.sp,
                   fontWeight: FontWeight.w700,

@@ -36,9 +36,13 @@ class TimeGroupedCard extends StatelessWidget {
                 ),
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
+                  style: TextStyle(
+                    fontSize: 21.sp,
+                    fontWeight: FontWeight.w700,
+                    // 자간 5%
+                    letterSpacing: 21.sp * 0.05,
+                    // 행간 170%
+                    height: 1.7,
                   ),
                 ),
               ],
