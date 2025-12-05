@@ -2,6 +2,7 @@ import 'package:bobmoo/constants/app_colors.dart';
 import 'package:bobmoo/models/menu_model.dart';
 import 'package:flutter/material.dart';
 import 'package:bobmoo/utils/hours_parser.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class OpenStatusBadge extends StatelessWidget {
   final Hours hours;
@@ -72,17 +73,10 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 1.5.h),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 6,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(24.r),
       ),
       child: Text(
         text,

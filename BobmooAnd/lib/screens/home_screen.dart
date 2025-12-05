@@ -468,7 +468,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 return const SizedBox.shrink();
               }
               return Padding(
-                padding: EdgeInsets.only(bottom: 30.h),
+                padding: EdgeInsets.only(bottom: 25.h),
                 child: TimeGroupedCard(
                   title: mealType,
                   mealData: mealsByCafeteria,

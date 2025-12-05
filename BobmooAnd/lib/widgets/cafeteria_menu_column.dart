@@ -3,6 +3,7 @@ import 'package:bobmoo/models/menu_model.dart';
 import 'package:bobmoo/widgets/meal_item_row.dart';
 import 'package:bobmoo/widgets/open_status_badge.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CafeteriaMenuColumn extends StatelessWidget {
   final MealByCafeteria data;
@@ -28,7 +29,7 @@ class CafeteriaMenuColumn extends StatelessWidget {
               data.cafeteriaName,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            SizedBox(width: 8),
+            SizedBox(width: 3.w),
             Expanded(
               child: Text(
                 _hoursTextForMealType(data.hours, mealType),
@@ -48,8 +49,8 @@ class CafeteriaMenuColumn extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 6),
-        // 이 식당의 메뉴들 (기존에 만들었던 MealItemRow 재활용)
+        SizedBox(height: 3.h),
+        // 식당의 메뉴들
         ...data.meals.map((meal) => MealItemRow(meal: meal)),
       ],
     );
