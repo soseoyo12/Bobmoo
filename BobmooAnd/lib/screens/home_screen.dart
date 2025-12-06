@@ -421,18 +421,79 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         // 데이터 없음
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("등록된 식단 정보가 없습니다."),
-                SizedBox(height: 16.h),
-                ElevatedButton(
-                  onPressed: () => setState(() {
-                    _refreshMeals();
-                  }),
-                  child: const Text("새로고침"),
-                ),
-              ],
+            child: Padding(
+              padding: EdgeInsets.all(32.w),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 아이콘
+                  Container(
+                    padding: EdgeInsets.all(24.w),
+                    decoration: BoxDecoration(
+                      color: AppColors.schoolColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.restaurant_menu,
+                      size: 48.w,
+                      color: AppColors.schoolColor,
+                    ),
+                  ),
+                  SizedBox(height: 24.h),
+                  // 제목
+                  Text(
+                    '등록된 식단이 없어요',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  // 설명
+                  Text(
+                    '아직 오늘의 메뉴가 등록되지 않았습니다.\n잠시 후 다시 확인해주세요.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.greyTextColor,
+                      height: 1.5,
+                    ),
+                  ),
+                  SizedBox(height: 24.h),
+                  // 새로고침 버튼
+                  TextButton(
+                    onPressed: () => setState(() {
+                      _refreshMeals();
+                    }),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.schoolColor,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24.w,
+                        vertical: 12.h,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24.r),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.refresh, size: 18.w),
+                        SizedBox(width: 8.w),
+                        Text(
+                          '새로고침',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -442,10 +503,26 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError && snapshot.error is! StaleDataException) {
-          return Center(child: Text('식단 정보를 불러오는데 실패했습니다: ${snapshot.error}'));
+          return Center(
+            child: Text(
+              '식단 정보를 불러오는데 실패했습니다',
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: AppColors.greyTextColor,
+              ),
+            ),
+          );
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text("등록된 식단 정보가 없습니다."));
+          return Center(
+            child: Text(
+              '등록된 식단이 없어요',
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: AppColors.greyTextColor,
+              ),
+            ),
+          );
         }
 
         // 데이터 로딩 성공
