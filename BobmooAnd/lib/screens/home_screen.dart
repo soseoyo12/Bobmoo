@@ -512,7 +512,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   // 자간 5% (픽셀 계산)
                   letterSpacing: 30.sp * 0.05,
                   // 행간 170%
-                  height: 1.7.sp,
+                  height: 1.7,
                   fontWeight: FontWeight.w700,
                   fontSize: 30.sp,
                 ),
