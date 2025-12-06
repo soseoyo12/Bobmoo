@@ -3,6 +3,7 @@ import 'package:bobmoo/constants/app_constants.dart';
 import 'package:bobmoo/locator.dart';
 import 'package:bobmoo/screens/home_screen.dart';
 import 'package:bobmoo/services/background_service.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,6 +13,9 @@ import 'package:workmanager/workmanager.dart';
 void main() async {
   // Flutter 바인딩 초기화
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Firebase 초기화
+  await Firebase.initializeApp();
 
   // 한국어 로케일데이터 추가
   await initializeDateFormatting('ko_KR', null);
