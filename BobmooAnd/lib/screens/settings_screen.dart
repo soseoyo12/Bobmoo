@@ -1,6 +1,9 @@
+import 'package:bobmoo/constants/app_colors.dart';
 import 'package:bobmoo/services/permission_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -10,7 +13,8 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen>
+    with WidgetsBindingObserver {
   // initState에서 권한 상태를 가져오기 위해 Future 사용
   late Future<bool> _permissionFuture;
 
@@ -21,15 +25,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// 현재 선택된 대표 식당
   String? _selectedCafeteria;
 
+  /// 앱 버전 정보
+  String _appVersion = '';
+
   @override
   void initState() {
     super.initState();
+    // 앱 라이프사이클 변경 감지를 위해 옵저버 등록
+    WidgetsBinding.instance.addObserver(this);
+
     _permissionFuture = PermissionService.canScheduleExactAlarms();
 
     // 설정 화면에 진입하면 배너 닫힘 상태를 초기화합니다.
     _resetBannerDismissalStatus();
 
     _loadSelectedCafeteria();
+    _loadAppVersion();
+  }
+
+  @override
+  void dispose() {
+    // 옵저버 해제
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 시스템 설정에서 돌아왔을 때 (앱이 다시 활성화될 때)
+    if (state == AppLifecycleState.resumed) {
+      setState(() {
+        _permissionFuture = PermissionService.canScheduleExactAlarms();
+      });
+    }
+  }
+
+  /// 앱 버전 정보를 불러옵니다.
+  Future<void> _loadAppVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    if (mounted) {
+      setState(() {
+        // version: pubspec.yaml의 version (예: 1.0.0)
+        // buildNumber: 빌드 번호 (예: 1)
+        _appVersion = 'v${packageInfo.version}';
+      });
+    }
   }
 
   Future<void> _resetBannerDismissalStatus() async {
@@ -77,15 +117,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text(
-          '위젯 설정이 변경되었습니다. 잠시 후에 반영됩니다.',
+        content: Text(
+          '위젯 설정이 변경되었습니다.',
           textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+          ),
         ),
-        duration: const Duration(seconds: 2), // 2초 동안 표시
-        behavior: SnackBarBehavior.floating, // 하단에 떠있는 형태로 표시
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.schoolColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(12.r),
         ),
+        margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
       ),
     );
   }
@@ -94,70 +140,331 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('설정', style: TextStyle(fontSize: 16)),
+        toolbarHeight: 70.h,
+        backgroundColor: AppColors.schoolColor,
+        elevation: 4.0,
+        shadowColor: Colors.black,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         centerTitle: true,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 22.w,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          '설정',
+          style: TextStyle(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+            letterSpacing: 20.sp * 0.03,
+          ),
+        ),
       ),
       body: ListView(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
         children: [
-          // --- 대표 식당 선택 UI ---
-          ListTile(
-            title: const Text('2x2 위젯 대표 식당 설정'),
-            subtitle: Text('기본 위젯에 표시될 식당을 선택하세요.'),
-            trailing: DropdownButton<String>(
-              value: _selectedCafeteria,
-              items: _cafeteriaList.map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  _saveSelectedCafeteria(newValue);
-                }
-              },
+          // --- 위젯 설정 섹션 ---
+          _buildSectionTitle('위젯 설정'),
+          SizedBox(height: 12.h),
+
+          // 대표 식당 선택 카드
+          _buildSettingsCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.schoolColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Icon(
+                        Icons.restaurant_menu,
+                        color: AppColors.schoolColor,
+                        size: 22.w,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '2x2 위젯 대표 식당',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            '기본 위젯에 표시될 식당을 선택하세요',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: AppColors.greyTextColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+                // 식당 선택 칩들
+                Wrap(
+                  spacing: 8.w,
+                  runSpacing: 8.h,
+                  children: _cafeteriaList.map((cafeteria) {
+                    final isSelected = _selectedCafeteria == cafeteria;
+                    return GestureDetector(
+                      onTap: () => _saveSelectedCafeteria(cafeteria),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 10.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.schoolColor
+                              : Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(20.r),
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.schoolColor
+                                : Colors.grey.shade300,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Text(
+                          cafeteria,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: isSelected ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
           ),
 
-          // --- 위젯 실시간 업데이트 UI ---
+          SizedBox(height: 16.h),
+
+          // 위젯 실시간 업데이트 카드
           FutureBuilder<bool>(
             future: _permissionFuture,
             builder: (context, snapshot) {
-              // 아직 데이터를 가져오는 중이면 로딩 인디케이터 표시
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const ListTile(
-                  title: Text('위젯 업데이트 권한'),
-                  subtitle: Text('권한 상태를 확인 중입니다...'),
+                return _buildSettingsCard(
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 20.w,
+                        height: 20.w,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.schoolColor,
+                        ),
+                      ),
+                      SizedBox(width: 16.w),
+                      Text(
+                        '권한 상태를 확인 중...',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: AppColors.greyTextColor,
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }
 
               final bool hasPermission = snapshot.data ?? false;
 
-              return ListTile(
-                title: const Text('위젯 실시간 업데이트'),
-                subtitle: Text(
-                  hasPermission
-                      ? '활성화됨: 위젯이 매분 자동으로 업데이트됩니다.'
-                      : '비활성화됨: 권한을 설정하여 실시간 업데이트를 켜세요.',
-                ),
-                trailing: Icon(
-                  hasPermission ? Icons.check_circle : Icons.warning,
-                  color: hasPermission ? Colors.green : Colors.orange,
-                ),
+              return _buildSettingsCard(
                 onTap: () async {
-                  // 탭하면 설정 화면으로 이동
                   await PermissionService.openAlarmPermissionSettings();
-                  // 설정 후 돌아왔을 때 상태를 갱신하기 위해 setState로 Future를 다시 할당
                   setState(() {
                     _permissionFuture =
                         PermissionService.canScheduleExactAlarms();
                   });
                 },
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8.w),
+                      decoration: BoxDecoration(
+                        color: hasPermission
+                            ? Colors.green.withValues(alpha: 0.1)
+                            : Colors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Icon(
+                        hasPermission ? Icons.update : Icons.schedule,
+                        color: hasPermission ? Colors.green : Colors.orange,
+                        size: 22.w,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '위젯 실시간 업데이트',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            hasPermission
+                                ? '활성화됨 · 매분 자동 업데이트'
+                                : '비활성화됨 · 탭하여 권한 설정',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: hasPermission
+                                  ? Colors.green.shade600
+                                  : AppColors.greyTextColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: hasPermission
+                            ? Colors.green.withValues(alpha: 0.1)
+                            : Colors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Text(
+                        hasPermission ? 'ON' : 'OFF',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w700,
+                          color: hasPermission ? Colors.green : Colors.orange,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           ),
-          // --- 다른 설정 메뉴들을 여기에 추가 ---
+
+          SizedBox(height: 32.h),
+
+          // --- 앱 정보 섹션 (추후 확장 가능) ---
+          _buildSectionTitle('앱 정보'),
+          SizedBox(height: 12.h),
+
+          _buildSettingsCard(
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.schoolColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Icon(
+                    Icons.info_outline,
+                    color: AppColors.schoolColor,
+                    size: 22.w,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '밥묵자',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        '인하대학교 학식 정보 앱',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: AppColors.greyTextColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  _appVersion,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: AppColors.greyTextColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  /// 섹션 제목 위젯
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4.w),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 13.sp,
+          fontWeight: FontWeight.w600,
+          color: AppColors.greyTextColor,
+          letterSpacing: 13.sp * 0.02,
+        ),
+      ),
+    );
+  }
+
+  /// 설정 카드 위젯
+  Widget _buildSettingsCard({
+    required Widget child,
+    VoidCallback? onTap,
+  }) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16.r),
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.08),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: child,
+        ),
       ),
     );
   }
