@@ -490,7 +490,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         toolbarHeight: 103.h,
         backgroundColor: Theme.of(context).colorScheme.primary,
         shadowColor: Colors.black,
-        elevation: 4.0.h,
+        elevation: 4.0,
         surfaceTintColor: Colors.transparent,
         // 스크롤 할 때 색 바뀌는 효과 제거
         scrolledUnderElevation: 0,
