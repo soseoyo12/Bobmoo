@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bobmoo/collections/meal_collection.dart';
+import 'package:bobmoo/constants/app_colors.dart';
 import 'package:bobmoo/locator.dart';
 import 'package:bobmoo/models/all_cafeterias_widget_data.dart';
 import 'package:bobmoo/models/meal_by_cafeteria.dart';
@@ -564,29 +565,34 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             // iconSize: 33.w,
             tooltip: '설정', // 풍선 도움말
             onPressed: () {
-              Navigator.of(context).push(
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      const SettingsScreen(),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
-                        const end = Offset.zero; // 원래 위치로 이동
-                        const curve = Curves.ease; // 부드러운 전환 효과
+              Navigator.of(context)
+                  .push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const SettingsScreen(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                            const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
+                            const end = Offset.zero; // 원래 위치로 이동
+                            const curve = Curves.ease; // 부드러운 전환 효과
 
-                        var tween = Tween(
-                          begin: begin,
-                          end: end,
-                        ).chain(CurveTween(curve: curve));
-                        var offsetAnimation = animation.drive(tween);
+                            var tween = Tween(
+                              begin: begin,
+                              end: end,
+                            ).chain(CurveTween(curve: curve));
+                            var offsetAnimation = animation.drive(tween);
 
-                        return SlideTransition(
-                          position: offsetAnimation,
-                          child: child,
-                        );
-                      },
-                ),
-              );
+                            return SlideTransition(
+                              position: offsetAnimation,
+                              child: child,
+                            );
+                          },
+                    ),
+                  )
+                  .then((_) {
+                    // 설정 화면에서 돌아왔을 때 배너 상태 다시 체크
+                    _checkPermissionAndShowBanner();
+                  });
             },
             padding: EdgeInsets.zero, // 내부 패딩 제거
             constraints: const BoxConstraints(), // 최소 크기 제한(48px) 제거
@@ -600,58 +606,106 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       body: _buildBody(),
       bottomNavigationBar: _showPermissionBanner
           ? SafeArea(
-              // TODO: 나중에 아래 권한 알림창도 리메이크
               child: Container(
-                padding: EdgeInsets.all(8.w),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                 margin: EdgeInsets.symmetric(
-                  horizontal: 16.0.w,
-                  vertical: 8.0.h,
+                  horizontal: 20.w,
+                  vertical: 12.h,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.blueGrey.shade700,
-                  borderRadius: BorderRadius.circular(32.0),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white70),
-                      onPressed: _dismissPermissionBanner,
-                      tooltip: '닫기',
-                    ),
-                    const Expanded(
-                      child: Text(
-                        '실시간 위젯 업데이트를 위해\n권한이 필요합니다.',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        textAlign: TextAlign.center,
+                    // 아이콘
+                    Container(
+                      padding: EdgeInsets.all(10.w),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Icon(
+                        Icons.notifications_active,
+                        color: Colors.orange,
+                        size: 24.w,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 12.w),
+                    // 텍스트
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '위젯 권한 필요',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            '실시간 업데이트를 위해 권한을 허용해주세요',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              color: AppColors.greyTextColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    // 설정 버튼
                     TextButton(
                       style: TextButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(32.0),
+                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.schoolColor,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 14.w,
+                          vertical: 8.h,
                         ),
-                      ),
-                      child: const Text(
-                        '설정하기',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       onPressed: () async {
                         await PermissionService.openAlarmPermissionSettings();
                       },
+                      child: Text(
+                        '설정',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    // 닫기 버튼
+                    GestureDetector(
+                      onTap: _dismissPermissionBanner,
+                      child: Icon(
+                        Icons.close,
+                        color: AppColors.greyTextColor,
+                        size: 20.w,
+                      ),
                     ),
                   ],
                 ),
               ),
             )
-          : null, // 권한이 있으면 아무것도 표시하지 않음
+          : null,
     );
   }
 }
