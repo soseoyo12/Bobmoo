@@ -1,6 +1,8 @@
+import 'package:bobmoo/constants/app_colors.dart';
 import 'package:bobmoo/models/menu_model.dart';
 import 'package:flutter/material.dart';
 import 'package:bobmoo/utils/hours_parser.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class OpenStatusBadge extends StatelessWidget {
   final Hours hours;
@@ -34,19 +36,19 @@ class OpenStatusBadge extends StatelessWidget {
       case OpenStatus.before:
         return _StatusBadge(
           text: '운영전',
-          backgroundColor: const Color(0xFF909090),
+          backgroundColor: AppColors.statusGray,
           textColor: Colors.white,
         );
       case OpenStatus.open:
         return _StatusBadge(
           text: '운영중',
-          backgroundColor: Colors.lightBlue.shade600,
+          backgroundColor: AppColors.statusBlue,
           textColor: Colors.white,
         );
       case OpenStatus.after:
         return _StatusBadge(
           text: '운영종료',
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.statusRed,
           textColor: Colors.white,
         );
       case OpenStatus.unknown:
@@ -71,23 +73,20 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 1.5.h),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 6,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(24.r),
       ),
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 10,
+          fontSize: 11.sp,
           fontWeight: FontWeight.w500,
+          // 자간 4%
+          letterSpacing: 11.sp * 0.04,
+          // 행간 21px
+          height: 2.0,
           color: textColor,
         ),
       ),

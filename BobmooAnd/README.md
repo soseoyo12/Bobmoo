@@ -23,18 +23,33 @@
 ```
 lib/
 ├── main.dart                 # 앱 진입점
+├── locator.dart              # 서비스 로케이터 (DI)
+├── collections/              # Isar DB 컬렉션
+│   ├── meal_collection.dart
+│   ├── menu_cache_status.dart
+│   └── restaurant_collection.dart
+├── constants/                # 상수 및 테마
+│   ├── app_colors.dart
+│   └── app_constants.dart
 ├── models/                   # 데이터 모델
-│   ├── menu_model.dart      # 메뉴 관련 모델
-│   └── meal_by_cafeteria.dart
+│   ├── menu_model.dart
+│   ├── meal_by_cafeteria.dart
+│   ├── meal_widget_data.dart
+│   └── all_cafeterias_widget_data.dart
+├── repositories/             # Repository 패턴
+│   └── meal_repository.dart
 ├── screens/                  # 화면
-│   ├── home_screen.dart     # 메인 화면
-│   └── settings_screen.dart # 설정 화면
-├── services/                 # API 서비스
-│   └── menu_service.dart
+│   ├── home_screen.dart
+│   └── settings_screen.dart
+├── services/                 # 서비스
+│   ├── menu_service.dart
+│   ├── background_service.dart
+│   ├── permission_service.dart
+│   └── widget_service.dart
 ├── utils/                    # 유틸리티
-│   └── hours_parser.dart
+│   ├── hours_parser.dart
+│   └── meal_utils.dart
 └── widgets/                  # 재사용 가능한 위젯
-    ├── cafeteria_card.dart
     ├── cafeteria_menu_column.dart
     ├── meal_item_row.dart
     ├── open_status_badge.dart

@@ -1,5 +1,7 @@
+import 'package:bobmoo/constants/app_colors.dart';
 import 'package:bobmoo/models/menu_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MealItemRow extends StatelessWidget {
   final MealItem meal;
@@ -8,23 +10,51 @@ class MealItemRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1.5),
+      padding: EdgeInsets.zero,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 1. 코스 (A, B, C...)
-          SizedBox(
-            width: 15, // 너비를 고정하여 정렬을 맞춤
-            child: Text(
-              meal.course,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          Text(
+            "${meal.course} ",
+            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w500),
+          ),
+          // 2. 메뉴 이름
+          Expanded(
+            // Warp 위젯을 통해 단어 별로 묶은다음에, 잘리게 된다면 다음줄로 넘어가게
+            child: Wrap(
+              spacing: 0, // 단어 사이 가로 간격
+              runSpacing: 0, // 줄 사이 세로 간격
+              children: meal.mainMenu
+                  .split(' ') // 쉼표로 분리
+                  .asMap()
+                  .entries
+                  .map((entry) {
+                    return Text(
+                      "${entry.value} ",
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    );
+                  })
+                  .toList(),
             ),
           ),
-          // 2. 메뉴 이름 (가장 넓은 공간 차지)
-          Expanded(
+          Padding(
+            padding: EdgeInsets.zero,
             child: Text(
-              meal.mainMenu,
-              style: const TextStyle(fontSize: 14),
+              "${meal.price}원",
+              style: TextStyle(
+                fontSize: 11.sp,
+                fontFamily: 'NanumSquareRound',
+                fontWeight: FontWeight.w700,
+                color: AppColors.greyTextColor,
+                // 자간 5%
+                letterSpacing: 11.sp * 0.02,
+                // 행간 21px
+                height: 2.0,
+              ),
             ),
           ),
         ],
