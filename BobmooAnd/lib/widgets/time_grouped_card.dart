@@ -61,8 +61,8 @@ class TimeGroupedCard extends StatelessWidget {
                   padding: EdgeInsets.only(
                     left: 13.w,
                     right: 5.w,
-                    top: 5.h,
-                    bottom: 5.h,
+                    top: 4.h,
+                    bottom: 12.h,
                   ),
                   child: CafeteriaMenuColumn(
                     data: mealData[index],
