@@ -7,6 +7,7 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.gms.google-services")
 }
 
 val keystoreProperties = Properties()
@@ -105,4 +106,6 @@ flutter {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("androidx.glance:glance-appwidget:1.1.1")
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    implementation("com.google.firebase:firebase-analytics")
 }

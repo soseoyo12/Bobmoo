@@ -4,6 +4,10 @@
 
 ## [1.1.0] - 2025-12-06
 
+### Added
+- Google Firebase 연동
+- Firebase Analytics 적용으로 사용자 행동 분석 지원
+
 ### Changed
 - UI 전면 개편
   - 새롭고 깔끔한 디자인으로 전체 화면 리뉴얼

@@ -80,3 +80,5 @@ generated_plugin_registrant.*
 
 keystore.jks
 .vscode/settings.json
+
+android/app/google-services.json
