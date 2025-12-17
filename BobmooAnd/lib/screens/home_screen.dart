@@ -60,12 +60,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     _checkPermissionAndShowBanner();
   }
 
+  /// 위젯이 영구적으로 제거될때 호출
   @override
   void dispose() {
+    // 옵저버 제거
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  /// 앱의 생명주기 상태 변화를 감지하는 콜백 함수
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
@@ -94,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     }
   }
 
-  // 배너 닫기 버튼을 눌렀을 때 실행될 함수 (새로 추가)
+  // 배너 닫기 버튼을 눌렀을 때 실행될 함수
   Future<void> _dismissPermissionBanner() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('permissionBannerDismissed', true);
@@ -139,6 +142,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   /// 데이터 로딩의 비동기 로직 함수
+  ///
   /// Repository에게 식단 데이터를 요청한다.
   Future<List<Meal>> _fetchData() async {
     try {
@@ -171,14 +175,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       // 1. 오늘 날짜의 메뉴 데이터 가져오기
       final todayMeals = await _repository.getMealsForDate(today);
 
-      // [수정됨] 데이터가 비어있어도(휴일 등) 위젯 정보를 갱신해야 하므로
-      // if (todayMeals.isEmpty) { return; } 코드를 삭제했습니다.
-      // 이제 데이터가 없으면 빈 리스트가 저장되어 위젯에서 "정보 없음" UI를 띄울 수 있습니다.
-
-      // 3. 데이터를 시간대별로 그룹화
+      // 2. 데이터를 시간대별로 그룹화
       final groupedMeals = groupMeals(todayMeals);
 
-      // 4. 오늘 운영하는 모든 식당의 고유한 이름과 정보(Hours)를 추출
+      // 3. 오늘 운영하는 모든 식당의 고유한 이름과 정보(Hours)를 추출
       final Map<String, Hours> uniqueCafeterias = {};
 
       // groupedMeals가 비어있으면 이 반복문은 실행되지 않음 -> 안전함
@@ -186,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         uniqueCafeterias[mealByCafeteria.cafeteriaName] = mealByCafeteria.hours;
       });
 
-      // 5. 각 식당별로 MealWidgetData 객체를 생성하여 리스트에 담기
+      // 4. 각 식당별로 MealWidgetData 객체를 생성하여 리스트에 담기
       final List<MealWidgetData> allCafeteriasData = [];
       for (var entry in uniqueCafeterias.entries) {
         final cafeteriaName = entry.key;
@@ -206,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       // 데이터가 없으면 allCafeteriasData는 빈 리스트 []가 됩니다.
       // 이 빈 리스트를 그대로 저장하면, 위젯은 데이터를 찾지 못합니다.
 
-      // 6. 모든 식당 데이터가 담긴 리스트를 새로운 컨테이너 모델로 감싸기
+      // 5. 모든 식당 데이터가 담긴 리스트를 새로운 컨테이너 모델로 감싸기
       final widgetDataContainer = AllCafeteriasWidgetData(
         cafeterias: allCafeteriasData,
       );
@@ -215,10 +215,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         debugPrint('✅ ${allCafeteriasData.length}개 식당 위젯 데이터 업데이트 성공!');
       }
 
-      // 7. 새로운 서비스 함수를 호출하여 통합된 데이터를 저장
+      // 6. 새로운 서비스 함수를 호출하여 통합된 데이터를 저장
       await WidgetService.saveAllCafeteriasWidgetData(widgetDataContainer);
     } catch (e) {
-      // 위젯 업데이트 실패는 조용히 무시 (사용자 경험에 영향 없음)
+      // 위젯 업데이트 실패는 조용히 무시
       if (kDebugMode) {
         debugPrint('위젯 업데이트 실패: $e');
       }
@@ -297,6 +297,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   // 6. 기존 시간 정렬 로직을 새 데이터 구조에 맞게 수정
 
   /// 선택된 날짜의 운영시간(Hours)을 사용해 동적 경계를 계산한 뒤 섹션 순서를 반환합니다.
+  ///
   /// 기준:
   /// - now < 아침 종료최대 → [아침, 점심, 저녁]
   /// - 아침 종료최대 ≤ now < 점심 종료최대 → [점심, 저녁, 아침]
