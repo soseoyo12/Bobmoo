@@ -31,7 +31,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
-  // 1. 상태변구 변경: Future 객체로 데이터와 로딩 상태를 한번에 관리
   final MealRepository _repository = locator<MealRepository>();
   late Future<List<Meal>> _mealFuture;
 
@@ -244,14 +243,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     });
   }
 
-  // 날짜 변경 시에는 setState로 Future를 교체해줍니다.
   void _loadMeals() {
     setState(() {
       _mealFuture = _fetchData();
     });
   }
 
-  // 3. 새로고침 함수 추가
   /// Pull-to-Refresh(당겨서 새로고침)을 위한 새로고침 함수
   Future<void> _refreshMeals() async {
     setState(() {
@@ -280,7 +277,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     });
   }
 
-  // 4. 날짜 선택 함수 수정
+  /// 날짜 선택 함수
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -293,8 +290,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       _loadMeals(); // 새 날짜로 데이터 로드
     }
   }
-
-  // 6. 기존 시간 정렬 로직을 새 데이터 구조에 맞게 수정
 
   /// 선택된 날짜의 운영시간(Hours)을 사용해 동적 경계를 계산한 뒤 섹션 순서를 반환합니다.
   ///
@@ -518,7 +513,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     );
   }
 
-  // 7. buildBody를 FutureBuilder로 재구성
   Widget _buildBody() {
     return FutureBuilder<List<Meal>>(
       future: _mealFuture,
