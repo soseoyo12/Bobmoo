@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // 앱 상태를 확인하기 위한 옵저버 할당
     WidgetsBinding.instance.addObserver(this);
     // 앱 시작 시 업데이트 확인
-    checkForUpdate();
+    _checkForUpdate();
     // initState에서는 setState를 호출하지 않고, Future를 직접 할당합니다.
     _mealFuture = _fetchData();
 
@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   /// 인앱 업데이트를 확인하고, 가능하면 유연한 업데이트를 시작하는 함수
-  Future<void> checkForUpdate() async {
+  Future<void> _checkForUpdate() async {
     try {
       // 1. 업데이트가 사용 가능한지 확인합니다.
       final AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
@@ -406,6 +406,118 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     );
   }
 
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(32.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 아이콘
+            Container(
+              padding: EdgeInsets.all(24.w),
+              decoration: BoxDecoration(
+                color: AppColors.schoolColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.restaurant_menu,
+                size: 48.w,
+                color: AppColors.schoolColor,
+              ),
+            ),
+            SizedBox(height: 24.h),
+            // 제목
+            Text(
+              '등록된 식단이 없어요',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            // 설명
+            Text(
+              '아직 오늘의 메뉴가 등록되지 않았습니다.\n잠시 후 다시 확인해주세요.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.greyTextColor,
+                height: 1.5,
+              ),
+            ),
+            SizedBox(height: 24.h),
+            // 새로고침 버튼
+            TextButton(
+              onPressed: () => setState(() {
+                _refreshMeals();
+              }),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: AppColors.schoolColor,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 24.w,
+                  vertical: 12.h,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24.r),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.refresh, size: 18.w),
+                  SizedBox(width: 8.w),
+                  Text(
+                    '새로고침',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 식단 목록을 보여주는 위젯
+  Widget _buildMealList(List<Meal> meals) {
+    final groupedMeals = groupMeals(meals);
+    final mealTypes = _orderedMealTypesByDynamicHours(groupedMeals);
+
+    return RefreshIndicator(
+      onRefresh: _refreshMeals, // 당겨서 새로고침 기능 연결
+      child: ListView.builder(
+        itemCount: mealTypes.length,
+        padding: EdgeInsets.symmetric(
+          horizontal: 21.w,
+          vertical: 23.h,
+        ),
+        itemBuilder: (context, index) {
+          final mealType = mealTypes[index];
+          final mealsByCafeteria = groupedMeals[mealType];
+
+          if (mealsByCafeteria == null || mealsByCafeteria.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return Padding(
+            padding: EdgeInsets.only(bottom: 25.h),
+            child: TimeGroupedCard(
+              title: mealType,
+              mealData: mealsByCafeteria,
+              selectedDate: _selectedDate,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   // 7. buildBody를 FutureBuilder로 재구성
   Widget _buildBody() {
     return FutureBuilder<List<Meal>>(
@@ -419,144 +531,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         if (snapshot.hasError) {
           return _buildErrorWidget(snapshot.error!);
         }
-        // 데이터 없음
+        // 데이터 없을 시 비어있음 표시
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.all(32.w),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // 아이콘
-                  Container(
-                    padding: EdgeInsets.all(24.w),
-                    decoration: BoxDecoration(
-                      color: AppColors.schoolColor.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.restaurant_menu,
-                      size: 48.w,
-                      color: AppColors.schoolColor,
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-                  // 제목
-                  Text(
-                    '등록된 식단이 없어요',
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  // 설명
-                  Text(
-                    '아직 오늘의 메뉴가 등록되지 않았습니다.\n잠시 후 다시 확인해주세요.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: AppColors.greyTextColor,
-                      height: 1.5,
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-                  // 새로고침 버튼
-                  TextButton(
-                    onPressed: () => setState(() {
-                      _refreshMeals();
-                    }),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: AppColors.schoolColor,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24.w,
-                        vertical: 12.h,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24.r),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.refresh, size: 18.w),
-                        SizedBox(width: 8.w),
-                        Text(
-                          '새로고침',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
+          return _buildEmptyState();
         }
 
-        if (snapshot.connectionState == ConnectionState.waiting &&
-            !snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError && snapshot.error is! StaleDataException) {
-          return Center(
-            child: Text(
-              '식단 정보를 불러오는데 실패했습니다',
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: AppColors.greyTextColor,
-              ),
-            ),
-          );
-        }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-            child: Text(
-              '등록된 식단이 없어요',
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: AppColors.greyTextColor,
-              ),
-            ),
-          );
-        }
-
-        // 데이터 로딩 성공
-        final meals = snapshot.data!;
-        final groupedMeals = groupMeals(meals);
-        final mealTypes = _orderedMealTypesByDynamicHours(groupedMeals);
-
-        return RefreshIndicator(
-          onRefresh: _refreshMeals, // 당겨서 새로고침 기능 연결
-          child: ListView.builder(
-            itemCount: mealTypes.length,
-            padding: EdgeInsets.symmetric(
-              horizontal: 21.w,
-              vertical: 23.h,
-            ),
-            itemBuilder: (context, index) {
-              final mealType = mealTypes[index];
-              final mealsByCafeteria = groupedMeals[mealType];
-
-              if (mealsByCafeteria == null || mealsByCafeteria.isEmpty) {
-                return const SizedBox.shrink();
-              }
-              return Padding(
-                padding: EdgeInsets.only(bottom: 25.h),
-                child: TimeGroupedCard(
-                  title: mealType,
-                  mealData: mealsByCafeteria,
-                  selectedDate: _selectedDate,
-                ),
-              );
-            },
-          ),
-        );
+        // 데이터 로딩 성공 -> MealList 위젯 생성
+        return _buildMealList(snapshot.data!);
       },
     );
   }
