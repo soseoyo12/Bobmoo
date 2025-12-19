@@ -542,228 +542,236 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     );
   }
 
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      toolbarHeight: 103.h,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      shadowColor: Colors.black,
+      elevation: 4.0,
+      surfaceTintColor: Colors.transparent,
+      // 스크롤 할 때 색 바뀌는 효과 제거
+      scrolledUnderElevation: 0,
+      centerTitle: false,
+      // Appbar의 기본 여백 제거
+      titleSpacing: 0,
+      actionsPadding: EdgeInsets.only(right: 26.w),
+      title: Padding(
+        padding: EdgeInsets.only(left: 26.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 20.h),
+            // 앱의 왼쪽 위
+            Text(
+              widget.title,
+              style: TextStyle(
+                color: Colors.white,
+                // 자간 5% (픽셀 계산)
+                letterSpacing: 30.sp * 0.05,
+                // 행간 170%
+                height: 1.7,
+                fontWeight: FontWeight.w700,
+                fontSize: 30.sp,
+              ),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.white.withValues(alpha: 0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(59.r),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 7.w,
+                  vertical: 2.h,
+                ),
+                minimumSize: Size.zero, // 최소 사이즈 제거
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap, // 탭 영역을 최소화
+              ),
+              onPressed: () => _selectDate(context), // 탭하면 _selectDate 함수 호출
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    DateFormat(
+                      'yyyy년 MM월 dd일 (E)',
+                      'ko_KR',
+                    ).format(_selectedDate), // 날짜 포맷
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 13.h,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(
+            Icons.menu,
+            size: 33.w,
+            color: Colors.white,
+          ), // 설정 아이콘
+          // iconSize: 33.w,
+          tooltip: '설정', // 풍선 도움말
+          onPressed: () {
+            Navigator.of(context)
+                .push(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const SettingsScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
+                          const end = Offset.zero; // 원래 위치로 이동
+                          const curve = Curves.ease; // 부드러운 전환 효과
+
+                          var tween = Tween(
+                            begin: begin,
+                            end: end,
+                          ).chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                  ),
+                )
+                .then((_) {
+                  // 설정 화면에서 돌아왔을 때 배너 상태 다시 체크
+                  _checkPermissionAndShowBanner();
+                });
+          },
+          padding: EdgeInsets.zero, // 내부 패딩 제거
+          constraints: const BoxConstraints(), // 최소 크기 제한(48px) 제거
+          style: IconButton.styleFrom(
+            tapTargetSize:
+                MaterialTapTargetSize.shrinkWrap, // 3. 터치 영역을 내용물에 딱 맞춤
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPermissionBanner() {
+    return SafeArea(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        margin: EdgeInsets.symmetric(
+          horizontal: 20.w,
+          vertical: 12.h,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // 아이콘
+            Container(
+              padding: EdgeInsets.all(10.w),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Icon(
+                Icons.notifications_active,
+                color: Colors.orange,
+                size: 24.w,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            // 텍스트
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '위젯 권한 필요',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    '실시간 업데이트를 위해 권한을 허용해주세요',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: AppColors.greyTextColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 8.w),
+            // 설정 버튼
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: AppColors.schoolColor,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 14.w,
+                  vertical: 8.h,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: () async {
+                await PermissionService.openAlarmPermissionSettings();
+              },
+              child: Text(
+                '설정',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            SizedBox(width: 8.w),
+            // 닫기 버튼
+            GestureDetector(
+              onTap: _dismissPermissionBanner,
+              child: Icon(
+                Icons.close,
+                color: AppColors.greyTextColor,
+                size: 20.w,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 103.h,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        shadowColor: Colors.black,
-        elevation: 4.0,
-        surfaceTintColor: Colors.transparent,
-        // 스크롤 할 때 색 바뀌는 효과 제거
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        // Appbar의 기본 여백 제거
-        titleSpacing: 0,
-        actionsPadding: EdgeInsets.only(right: 26.w),
-        title: Padding(
-          padding: EdgeInsets.only(left: 26.w),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 20.h),
-              // 앱의 왼쪽 위
-              Text(
-                widget.title,
-                style: TextStyle(
-                  color: Colors.white,
-                  // 자간 5% (픽셀 계산)
-                  letterSpacing: 30.sp * 0.05,
-                  // 행간 170%
-                  height: 1.7,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 30.sp,
-                ),
-              ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(59.r),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 7.w,
-                    vertical: 2.h,
-                  ),
-                  minimumSize: Size.zero, // 최소 사이즈 제거
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap, // 탭 영역을 최소화
-                ),
-                onPressed: () => _selectDate(context), // 탭하면 _selectDate 함수 호출
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      DateFormat(
-                        'yyyy년 MM월 dd일 (E)',
-                        'ko_KR',
-                      ).format(_selectedDate), // 날짜 포맷
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 13.h,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.menu,
-              size: 33.w,
-              color: Colors.white,
-            ), // 설정 아이콘
-            // iconSize: 33.w,
-            tooltip: '설정', // 풍선 도움말
-            onPressed: () {
-              Navigator.of(context)
-                  .push(
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const SettingsScreen(),
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                            const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
-                            const end = Offset.zero; // 원래 위치로 이동
-                            const curve = Curves.ease; // 부드러운 전환 효과
-
-                            var tween = Tween(
-                              begin: begin,
-                              end: end,
-                            ).chain(CurveTween(curve: curve));
-                            var offsetAnimation = animation.drive(tween);
-
-                            return SlideTransition(
-                              position: offsetAnimation,
-                              child: child,
-                            );
-                          },
-                    ),
-                  )
-                  .then((_) {
-                    // 설정 화면에서 돌아왔을 때 배너 상태 다시 체크
-                    _checkPermissionAndShowBanner();
-                  });
-            },
-            padding: EdgeInsets.zero, // 내부 패딩 제거
-            constraints: const BoxConstraints(), // 최소 크기 제한(48px) 제거
-            style: IconButton.styleFrom(
-              tapTargetSize:
-                  MaterialTapTargetSize.shrinkWrap, // 3. 터치 영역을 내용물에 딱 맞춤
-            ),
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: _buildBody(),
       bottomNavigationBar: _showPermissionBanner
-          ? SafeArea(
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                margin: EdgeInsets.symmetric(
-                  horizontal: 20.w,
-                  vertical: 12.h,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    // 아이콘
-                    Container(
-                      padding: EdgeInsets.all(10.w),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: Icon(
-                        Icons.notifications_active,
-                        color: Colors.orange,
-                        size: 24.w,
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    // 텍스트
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '위젯 권한 필요',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          SizedBox(height: 2.h),
-                          Text(
-                            '실시간 업데이트를 위해 권한을 허용해주세요',
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              color: AppColors.greyTextColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    // 설정 버튼
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: AppColors.schoolColor,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 14.w,
-                          vertical: 8.h,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.r),
-                        ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      onPressed: () async {
-                        await PermissionService.openAlarmPermissionSettings();
-                      },
-                      child: Text(
-                        '설정',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    // 닫기 버튼
-                    GestureDetector(
-                      onTap: _dismissPermissionBanner,
-                      child: Icon(
-                        Icons.close,
-                        color: AppColors.greyTextColor,
-                        size: 20.w,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
+          ? _buildPermissionBanner()
           : null,
     );
   }
