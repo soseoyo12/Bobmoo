@@ -112,89 +112,115 @@ class MealRepository {
       DateUtils.dateOnly(DateTime.now()),
     );
 
-    final newMeals = <Meal>[];
-
     await isar.writeTxn(() async {
-      // 트랜잭션 시작
-
       // 1. 해당 날짜의 기존 Meal 데이터 삭제 (중복 방지)
       await isar.meals.filter().dateEqualTo(responseDate).deleteAll();
 
+      final newMeals = <Meal>[];
       for (var cafeteria in response.cafeterias) {
-        Restaurant? restaurant = await isar.restaurants
-            .where()
-            .nameEqualTo(cafeteria.name)
-            .findFirst();
-
-        // 2. 조건부 Restaurant 정보 업데이트
-        if (restaurant == null) {
-          // 신규 식당이면 무조건 추가
-          restaurant = Restaurant()
-            ..name = cafeteria.name
-            ..breakfastHours = cafeteria.hours.breakfast
-            ..lunchHours = cafeteria.hours.lunch
-            ..dinnerHours = cafeteria.hours.dinner;
-          await isar.restaurants.put(restaurant);
-        } else if (isToday) {
-          // 기존 식당인데 오늘 데이터면 정보 업데이트
-          restaurant
-            ..breakfastHours = cafeteria.hours.breakfast
-            ..lunchHours = cafeteria.hours.lunch
-            ..dinnerHours = cafeteria.hours.dinner;
-          await isar.restaurants.put(restaurant);
-        }
-
-        // 3. Meal 객체 생성
-        final restaurantForLink =
-            restaurant; // restaurant는 null이 아님! 위 if문에서 체크함
-        for (var item in cafeteria.meals.breakfast) {
-          newMeals.add(
-            _createMeal(
-              item,
-              responseDate,
-              MealTime.breakfast,
-              restaurantForLink,
-            ),
-          );
-        }
-        for (var item in cafeteria.meals.lunch) {
-          newMeals.add(
-            _createMeal(
-              item,
-              responseDate,
-              MealTime.lunch,
-              restaurantForLink,
-            ),
-          );
-        }
-        for (var item in cafeteria.meals.dinner) {
-          newMeals.add(
-            _createMeal(
-              item,
-              responseDate,
-              MealTime.dinner,
-              restaurantForLink,
-            ),
-          );
-        }
+        final restaurant = await _getOrCreateRestaurant(cafeteria, isToday);
+        final meals = _createMealsFromCafeteria(
+          cafeteria,
+          responseDate,
+          restaurant,
+        );
+        newMeals.addAll(meals);
       }
 
-      // 4. 모든 Meal 객체 저장 및 링크 연결
-      await isar.meals.putAll(newMeals);
-      for (var meal in newMeals) {
-        await meal.restaurant.save();
-      }
+      // 2. 모든 Meal 객체 저장 및 링크 연결
+      await _saveMealsAndLinks(newMeals);
 
-      // 5. 캐시 상태 정보 업데이트
-      final newCacheStatus = MenuCacheStatus()
-        ..date = responseDate
-        ..lastFetchedAt = DateTime.now();
-      await isar.menuCacheStatuses.put(newCacheStatus);
+      // 3. 캐시 상태 정보 업데이트
+      await _updateCacheStatus(responseDate);
     });
 
     if (kDebugMode) {
       print("💾 DB 저장 완료: $responseDate");
     }
+  }
+
+  /// Restaurant 조회/생성/업데이트
+  Future<Restaurant> _getOrCreateRestaurant(
+    Cafeteria cafeteria,
+    bool isToday,
+  ) async {
+    Restaurant? restaurant = await isar.restaurants
+        .where()
+        .nameEqualTo(cafeteria.name)
+        .findFirst();
+
+    restaurant ??= Restaurant()..name = cafeteria.name;
+
+    // 운영시간 업데이트: 새로 생성한 경우 또는 오늘 데이터인 경우
+    if (restaurant.id == 0 || isToday) {
+      restaurant
+        ..breakfastHours = cafeteria.hours.breakfast
+        ..lunchHours = cafeteria.hours.lunch
+        ..dinnerHours = cafeteria.hours.dinner;
+    }
+
+    await isar.restaurants.put(restaurant);
+    return restaurant;
+  }
+
+  /// Cafeteria에서 Meal 객체들 생성
+  List<Meal> _createMealsFromCafeteria(
+    Cafeteria cafeteria,
+    DateTime date,
+    Restaurant restaurant,
+  ) {
+    final meals = <Meal>[];
+
+    for (var item in cafeteria.meals.breakfast) {
+      meals.add(
+        _createMeal(
+          item,
+          date,
+          MealTime.breakfast,
+          restaurant,
+        ),
+      );
+    }
+
+    for (var item in cafeteria.meals.lunch) {
+      meals.add(
+        _createMeal(
+          item,
+          date,
+          MealTime.lunch,
+          restaurant,
+        ),
+      );
+    }
+
+    for (var item in cafeteria.meals.dinner) {
+      meals.add(
+        _createMeal(
+          item,
+          date,
+          MealTime.dinner,
+          restaurant,
+        ),
+      );
+    }
+
+    return meals;
+  }
+
+  /// Meal 객체들 저장 및 링크 연결
+  Future<void> _saveMealsAndLinks(List<Meal> meals) async {
+    await isar.meals.putAll(meals);
+    for (var meal in meals) {
+      await meal.restaurant.save();
+    }
+  }
+
+  /// 캐시 상태 정보 업데이트
+  Future<void> _updateCacheStatus(DateTime date) async {
+    final newCacheStatus = MenuCacheStatus()
+      ..date = date
+      ..lastFetchedAt = DateTime.now();
+    await isar.menuCacheStatuses.put(newCacheStatus);
   }
 
   /// Meal() 생성

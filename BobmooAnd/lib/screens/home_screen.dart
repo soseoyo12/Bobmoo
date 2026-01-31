@@ -31,7 +31,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
-  // 1. 상태변구 변경: Future 객체로 데이터와 로딩 상태를 한번에 관리
   final MealRepository _repository = locator<MealRepository>();
   late Future<List<Meal>> _mealFuture;
 
@@ -49,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // 앱 상태를 확인하기 위한 옵저버 할당
     WidgetsBinding.instance.addObserver(this);
     // 앱 시작 시 업데이트 확인
-    checkForUpdate();
+    _checkForUpdate();
     // initState에서는 setState를 호출하지 않고, Future를 직접 할당합니다.
     _mealFuture = _fetchData();
 
@@ -60,12 +59,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     _checkPermissionAndShowBanner();
   }
 
+  /// 위젯이 영구적으로 제거될때 호출
   @override
   void dispose() {
+    // 옵저버 제거
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  /// 앱의 생명주기 상태 변화를 감지하는 콜백 함수
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
@@ -94,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     }
   }
 
-  // 배너 닫기 버튼을 눌렀을 때 실행될 함수 (새로 추가)
+  // 배너 닫기 버튼을 눌렀을 때 실행될 함수
   Future<void> _dismissPermissionBanner() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('permissionBannerDismissed', true);
@@ -104,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   /// 인앱 업데이트를 확인하고, 가능하면 유연한 업데이트를 시작하는 함수
-  Future<void> checkForUpdate() async {
+  Future<void> _checkForUpdate() async {
     try {
       // 1. 업데이트가 사용 가능한지 확인합니다.
       final AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
@@ -139,6 +141,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   /// 데이터 로딩의 비동기 로직 함수
+  ///
   /// Repository에게 식단 데이터를 요청한다.
   Future<List<Meal>> _fetchData() async {
     try {
@@ -171,14 +174,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       // 1. 오늘 날짜의 메뉴 데이터 가져오기
       final todayMeals = await _repository.getMealsForDate(today);
 
-      // [수정됨] 데이터가 비어있어도(휴일 등) 위젯 정보를 갱신해야 하므로
-      // if (todayMeals.isEmpty) { return; } 코드를 삭제했습니다.
-      // 이제 데이터가 없으면 빈 리스트가 저장되어 위젯에서 "정보 없음" UI를 띄울 수 있습니다.
-
-      // 3. 데이터를 시간대별로 그룹화
+      // 2. 데이터를 시간대별로 그룹화
       final groupedMeals = groupMeals(todayMeals);
 
-      // 4. 오늘 운영하는 모든 식당의 고유한 이름과 정보(Hours)를 추출
+      // 3. 오늘 운영하는 모든 식당의 고유한 이름과 정보(Hours)를 추출
       final Map<String, Hours> uniqueCafeterias = {};
 
       // groupedMeals가 비어있으면 이 반복문은 실행되지 않음 -> 안전함
@@ -186,7 +185,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         uniqueCafeterias[mealByCafeteria.cafeteriaName] = mealByCafeteria.hours;
       });
 
-      // 5. 각 식당별로 MealWidgetData 객체를 생성하여 리스트에 담기
+      // 4. 각 식당별로 MealWidgetData 객체를 생성하여 리스트에 담기
       final List<MealWidgetData> allCafeteriasData = [];
       for (var entry in uniqueCafeterias.entries) {
         final cafeteriaName = entry.key;
@@ -206,7 +205,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       // 데이터가 없으면 allCafeteriasData는 빈 리스트 []가 됩니다.
       // 이 빈 리스트를 그대로 저장하면, 위젯은 데이터를 찾지 못합니다.
 
-      // 6. 모든 식당 데이터가 담긴 리스트를 새로운 컨테이너 모델로 감싸기
+      // 5. 모든 식당 데이터가 담긴 리스트를 새로운 컨테이너 모델로 감싸기
       final widgetDataContainer = AllCafeteriasWidgetData(
         cafeterias: allCafeteriasData,
       );
@@ -215,10 +214,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         debugPrint('✅ ${allCafeteriasData.length}개 식당 위젯 데이터 업데이트 성공!');
       }
 
-      // 7. 새로운 서비스 함수를 호출하여 통합된 데이터를 저장
+      // 6. 새로운 서비스 함수를 호출하여 통합된 데이터를 저장
       await WidgetService.saveAllCafeteriasWidgetData(widgetDataContainer);
     } catch (e) {
-      // 위젯 업데이트 실패는 조용히 무시 (사용자 경험에 영향 없음)
+      // 위젯 업데이트 실패는 조용히 무시
       if (kDebugMode) {
         debugPrint('위젯 업데이트 실패: $e');
       }
@@ -244,14 +243,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     });
   }
 
-  // 날짜 변경 시에는 setState로 Future를 교체해줍니다.
   void _loadMeals() {
     setState(() {
       _mealFuture = _fetchData();
     });
   }
 
-  // 3. 새로고침 함수 추가
   /// Pull-to-Refresh(당겨서 새로고침)을 위한 새로고침 함수
   Future<void> _refreshMeals() async {
     setState(() {
@@ -280,7 +277,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     });
   }
 
-  // 4. 날짜 선택 함수 수정
+  /// 날짜 선택 함수
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -294,9 +291,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     }
   }
 
-  // 6. 기존 시간 정렬 로직을 새 데이터 구조에 맞게 수정
-
   /// 선택된 날짜의 운영시간(Hours)을 사용해 동적 경계를 계산한 뒤 섹션 순서를 반환합니다.
+  ///
   /// 기준:
   /// - now < 아침 종료최대 → [아침, 점심, 저녁]
   /// - 아침 종료최대 ≤ now < 점심 종료최대 → [점심, 저녁, 아침]
@@ -405,7 +401,118 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     );
   }
 
-  // 7. buildBody를 FutureBuilder로 재구성
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(32.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 아이콘
+            Container(
+              padding: EdgeInsets.all(24.w),
+              decoration: BoxDecoration(
+                color: AppColors.schoolColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.restaurant_menu,
+                size: 48.w,
+                color: AppColors.schoolColor,
+              ),
+            ),
+            SizedBox(height: 24.h),
+            // 제목
+            Text(
+              '등록된 식단이 없어요',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            // 설명
+            Text(
+              '아직 오늘의 메뉴가 등록되지 않았습니다.\n잠시 후 다시 확인해주세요.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.greyTextColor,
+                height: 1.5,
+              ),
+            ),
+            SizedBox(height: 24.h),
+            // 새로고침 버튼
+            TextButton(
+              onPressed: () => setState(() {
+                _refreshMeals();
+              }),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: AppColors.schoolColor,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 24.w,
+                  vertical: 12.h,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24.r),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.refresh, size: 18.w),
+                  SizedBox(width: 8.w),
+                  Text(
+                    '새로고침',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 식단 목록을 보여주는 위젯
+  Widget _buildMealList(List<Meal> meals) {
+    final groupedMeals = groupMeals(meals);
+    final mealTypes = _orderedMealTypesByDynamicHours(groupedMeals);
+
+    return RefreshIndicator(
+      onRefresh: _refreshMeals, // 당겨서 새로고침 기능 연결
+      child: ListView.builder(
+        itemCount: mealTypes.length,
+        padding: EdgeInsets.symmetric(
+          horizontal: 21.w,
+          vertical: 23.h,
+        ),
+        itemBuilder: (context, index) {
+          final mealType = mealTypes[index];
+          final mealsByCafeteria = groupedMeals[mealType];
+
+          if (mealsByCafeteria == null || mealsByCafeteria.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return Padding(
+            padding: EdgeInsets.only(bottom: 25.h),
+            child: TimeGroupedCard(
+              title: mealType,
+              mealData: mealsByCafeteria,
+              selectedDate: _selectedDate,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildBody() {
     return FutureBuilder<List<Meal>>(
       future: _mealFuture,
@@ -418,370 +525,247 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         if (snapshot.hasError) {
           return _buildErrorWidget(snapshot.error!);
         }
-        // 데이터 없음
+        // 데이터 없을 시 비어있음 표시
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.all(32.w),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+          return _buildEmptyState();
+        }
+
+        // 데이터 로딩 성공 -> MealList 위젯 생성
+        return _buildMealList(snapshot.data!);
+      },
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      toolbarHeight: 103.h,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      shadowColor: Colors.black,
+      elevation: 4.0,
+      surfaceTintColor: Colors.transparent,
+      // 스크롤 할 때 색 바뀌는 효과 제거
+      scrolledUnderElevation: 0,
+      centerTitle: false,
+      // Appbar의 기본 여백 제거
+      titleSpacing: 0,
+      actionsPadding: EdgeInsets.only(right: 26.w),
+      title: Padding(
+        padding: EdgeInsets.only(left: 26.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 20.h),
+            // 앱의 왼쪽 위
+            Text(
+              widget.title,
+              style: TextStyle(
+                color: Colors.white,
+                // 자간 5% (픽셀 계산)
+                letterSpacing: 30.sp * 0.05,
+                // 행간 170%
+                height: 1.7,
+                fontWeight: FontWeight.w700,
+                fontSize: 30.sp,
+              ),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.white.withValues(alpha: 0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(59.r),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 7.w,
+                  vertical: 2.h,
+                ),
+                minimumSize: Size.zero, // 최소 사이즈 제거
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap, // 탭 영역을 최소화
+              ),
+              onPressed: () => _selectDate(context), // 탭하면 _selectDate 함수 호출
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // 아이콘
-                  Container(
-                    padding: EdgeInsets.all(24.w),
-                    decoration: BoxDecoration(
-                      color: AppColors.schoolColor.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.restaurant_menu,
-                      size: 48.w,
-                      color: AppColors.schoolColor,
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-                  // 제목
                   Text(
-                    '등록된 식단이 없어요',
+                    DateFormat(
+                      'yyyy년 MM월 dd일 (E)',
+                      'ko_KR',
+                    ).format(_selectedDate), // 날짜 포맷
                     style: TextStyle(
-                      fontSize: 18.sp,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  // 설명
-                  Text(
-                    '아직 오늘의 메뉴가 등록되지 않았습니다.\n잠시 후 다시 확인해주세요.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: AppColors.greyTextColor,
-                      height: 1.5,
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-                  // 새로고침 버튼
-                  TextButton(
-                    onPressed: () => setState(() {
-                      _refreshMeals();
-                    }),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: AppColors.schoolColor,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24.w,
-                        vertical: 12.h,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24.r),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.refresh, size: 18.w),
-                        SizedBox(width: 8.w),
-                        Text(
-                          '새로고침',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                      color: Colors.white,
                     ),
                   ),
                 ],
               ),
             ),
-          );
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting &&
-            !snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError && snapshot.error is! StaleDataException) {
-          return Center(
-            child: Text(
-              '식단 정보를 불러오는데 실패했습니다',
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: AppColors.greyTextColor,
-              ),
+            SizedBox(
+              height: 13.h,
             ),
-          );
-        }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-            child: Text(
-              '등록된 식단이 없어요',
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: AppColors.greyTextColor,
-              ),
-            ),
-          );
-        }
+          ],
+        ),
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(
+            Icons.menu,
+            size: 33.w,
+            color: Colors.white,
+          ), // 설정 아이콘
+          // iconSize: 33.w,
+          tooltip: '설정', // 풍선 도움말
+          onPressed: () {
+            Navigator.of(context)
+                .push(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const SettingsScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
+                          const end = Offset.zero; // 원래 위치로 이동
+                          const curve = Curves.ease; // 부드러운 전환 효과
 
-        // 데이터 로딩 성공
-        final meals = snapshot.data!;
-        final groupedMeals = groupMeals(meals);
-        final mealTypes = _orderedMealTypesByDynamicHours(groupedMeals);
+                          var tween = Tween(
+                            begin: begin,
+                            end: end,
+                          ).chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
 
-        return RefreshIndicator(
-          onRefresh: _refreshMeals, // 당겨서 새로고침 기능 연결
-          child: ListView.builder(
-            itemCount: mealTypes.length,
-            padding: EdgeInsets.symmetric(
-              horizontal: 21.w,
-              vertical: 23.h,
-            ),
-            itemBuilder: (context, index) {
-              final mealType = mealTypes[index];
-              final mealsByCafeteria = groupedMeals[mealType];
-
-              if (mealsByCafeteria == null || mealsByCafeteria.isEmpty) {
-                return const SizedBox.shrink();
-              }
-              return Padding(
-                padding: EdgeInsets.only(bottom: 25.h),
-                child: TimeGroupedCard(
-                  title: mealType,
-                  mealData: mealsByCafeteria,
-                  selectedDate: _selectedDate,
-                ),
-              );
-            },
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                  ),
+                )
+                .then((_) {
+                  // 설정 화면에서 돌아왔을 때 배너 상태 다시 체크
+                  _checkPermissionAndShowBanner();
+                });
+          },
+          padding: EdgeInsets.zero, // 내부 패딩 제거
+          constraints: const BoxConstraints(), // 최소 크기 제한(48px) 제거
+          style: IconButton.styleFrom(
+            tapTargetSize:
+                MaterialTapTargetSize.shrinkWrap, // 3. 터치 영역을 내용물에 딱 맞춤
           ),
-        );
-      },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPermissionBanner() {
+    return SafeArea(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        margin: EdgeInsets.symmetric(
+          horizontal: 20.w,
+          vertical: 12.h,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // 아이콘
+            Container(
+              padding: EdgeInsets.all(10.w),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Icon(
+                Icons.notifications_active,
+                color: Colors.orange,
+                size: 24.w,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            // 텍스트
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '위젯 권한 필요',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    '실시간 업데이트를 위해 권한을 허용해주세요',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: AppColors.greyTextColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 8.w),
+            // 설정 버튼
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: AppColors.schoolColor,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 14.w,
+                  vertical: 8.h,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: () async {
+                await PermissionService.openAlarmPermissionSettings();
+              },
+              child: Text(
+                '설정',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            SizedBox(width: 8.w),
+            // 닫기 버튼
+            GestureDetector(
+              onTap: _dismissPermissionBanner,
+              child: Icon(
+                Icons.close,
+                color: AppColors.greyTextColor,
+                size: 20.w,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 103.h,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        shadowColor: Colors.black,
-        elevation: 4.0,
-        surfaceTintColor: Colors.transparent,
-        // 스크롤 할 때 색 바뀌는 효과 제거
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        // Appbar의 기본 여백 제거
-        titleSpacing: 0,
-        actionsPadding: EdgeInsets.only(right: 26.w),
-        title: Padding(
-          padding: EdgeInsets.only(left: 26.w),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 20.h),
-              // 앱의 왼쪽 위
-              Text(
-                widget.title,
-                style: TextStyle(
-                  color: Colors.white,
-                  // 자간 5% (픽셀 계산)
-                  letterSpacing: 30.sp * 0.05,
-                  // 행간 170%
-                  height: 1.7,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 30.sp,
-                ),
-              ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(59.r),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 7.w,
-                    vertical: 2.h,
-                  ),
-                  minimumSize: Size.zero, // 최소 사이즈 제거
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap, // 탭 영역을 최소화
-                ),
-                onPressed: () => _selectDate(context), // 탭하면 _selectDate 함수 호출
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      DateFormat(
-                        'yyyy년 MM월 dd일 (E)',
-                        'ko_KR',
-                      ).format(_selectedDate), // 날짜 포맷
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 13.h,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.menu,
-              size: 33.w,
-              color: Colors.white,
-            ), // 설정 아이콘
-            // iconSize: 33.w,
-            tooltip: '설정', // 풍선 도움말
-            onPressed: () {
-              Navigator.of(context)
-                  .push(
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const SettingsScreen(),
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                            const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
-                            const end = Offset.zero; // 원래 위치로 이동
-                            const curve = Curves.ease; // 부드러운 전환 효과
-
-                            var tween = Tween(
-                              begin: begin,
-                              end: end,
-                            ).chain(CurveTween(curve: curve));
-                            var offsetAnimation = animation.drive(tween);
-
-                            return SlideTransition(
-                              position: offsetAnimation,
-                              child: child,
-                            );
-                          },
-                    ),
-                  )
-                  .then((_) {
-                    // 설정 화면에서 돌아왔을 때 배너 상태 다시 체크
-                    _checkPermissionAndShowBanner();
-                  });
-            },
-            padding: EdgeInsets.zero, // 내부 패딩 제거
-            constraints: const BoxConstraints(), // 최소 크기 제한(48px) 제거
-            style: IconButton.styleFrom(
-              tapTargetSize:
-                  MaterialTapTargetSize.shrinkWrap, // 3. 터치 영역을 내용물에 딱 맞춤
-            ),
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: _buildBody(),
       bottomNavigationBar: _showPermissionBanner
-          ? SafeArea(
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                margin: EdgeInsets.symmetric(
-                  horizontal: 20.w,
-                  vertical: 12.h,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    // 아이콘
-                    Container(
-                      padding: EdgeInsets.all(10.w),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: Icon(
-                        Icons.notifications_active,
-                        color: Colors.orange,
-                        size: 24.w,
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    // 텍스트
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '위젯 권한 필요',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          SizedBox(height: 2.h),
-                          Text(
-                            '실시간 업데이트를 위해 권한을 허용해주세요',
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              color: AppColors.greyTextColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    // 설정 버튼
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: AppColors.schoolColor,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 14.w,
-                          vertical: 8.h,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.r),
-                        ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      onPressed: () async {
-                        await PermissionService.openAlarmPermissionSettings();
-                      },
-                      child: Text(
-                        '설정',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    // 닫기 버튼
-                    GestureDetector(
-                      onTap: _dismissPermissionBanner,
-                      child: Icon(
-                        Icons.close,
-                        color: AppColors.greyTextColor,
-                        size: 20.w,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
+          ? _buildPermissionBanner()
           : null,
     );
   }
