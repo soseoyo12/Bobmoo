@@ -151,13 +151,12 @@ class MealRepository {
 
     restaurant ??= Restaurant()..name = cafeteria.name;
 
-    // 운영시간 업데이트: 새로 생성한 경우 또는 오늘 데이터인 경우
-    if (restaurant.id == 0 || isToday) {
-      restaurant
-        ..breakfastHours = cafeteria.hours.breakfast
-        ..lunchHours = cafeteria.hours.lunch
-        ..dinnerHours = cafeteria.hours.dinner;
-    }
+    // 운영시간 업데이트: 항상 최신 운영시간으로 업데이트
+    // (기존 Restaurant가 운영시간이 초기화되지 않은 상태일 수 있으므로)
+    restaurant
+      ..breakfastHours = cafeteria.hours.breakfast
+      ..lunchHours = cafeteria.hours.lunch
+      ..dinnerHours = cafeteria.hours.dinner;
 
     await isar.restaurants.put(restaurant);
     return restaurant;
