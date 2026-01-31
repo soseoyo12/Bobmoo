@@ -4,10 +4,6 @@ class AppColors {
   // 인스턴스화 방지 (C++의 static class처럼 사용)
   AppColors._();
 
-  // --- 메인 브랜드 컬러 (인하 딥블루 등) ---
-  static const Color schoolColor = Color(0xFF005CAA); // 인하대학교 교색
-  // static const Color subColor = Color(0xFF196BB4);
-
   // --- 텍스트 컬러 (Grayscale) ---
   static const Color greyTextColor = Color(0xFF8B8787);
   static const Color grayDividerColor = Color(0xFF797979); // 리스트 구분선
