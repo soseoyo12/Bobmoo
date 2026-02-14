@@ -6,6 +6,7 @@ import 'package:bobmoo/locator.dart';
 import 'package:bobmoo/models/all_cafeterias_widget_data.dart';
 import 'package:bobmoo/models/meal_by_cafeteria.dart';
 import 'package:bobmoo/models/menu_model.dart';
+import 'package:bobmoo/providers/univ_provider.dart';
 import 'package:bobmoo/repositories/meal_repository.dart';
 import 'package:bobmoo/models/meal_widget_data.dart';
 import 'package:bobmoo/screens/settings_screen.dart';
@@ -19,12 +20,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -402,6 +402,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   Widget _buildEmptyState() {
+    final Color univColor = context.watch<UnivProvider>().univColor;
+
     return Center(
       child: Padding(
         padding: EdgeInsets.all(32.w),
@@ -412,13 +414,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             Container(
               padding: EdgeInsets.all(24.w),
               decoration: BoxDecoration(
-                color: AppColors.schoolColor.withValues(alpha: 0.1),
+                color: univColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.restaurant_menu,
                 size: 48.w,
-                color: AppColors.schoolColor,
+                color: univColor,
               ),
             ),
             SizedBox(height: 24.h),
@@ -450,7 +452,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               }),
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
-                backgroundColor: AppColors.schoolColor,
+                backgroundColor: univColor,
                 padding: EdgeInsets.symmetric(
                   horizontal: 24.w,
                   vertical: 12.h,
@@ -537,6 +539,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   PreferredSizeWidget _buildAppBar() {
+    final String univName = context.watch<UnivProvider>().univName;
+
     return AppBar(
       toolbarHeight: 103.h,
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -558,7 +562,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             SizedBox(height: 20.h),
             // 앱의 왼쪽 위
             Text(
-              widget.title,
+              univName,
               style: TextStyle(
                 color: Colors.white,
                 // 자간 5% (픽셀 계산)
@@ -657,6 +661,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   Widget _buildPermissionBanner() {
+    final Color univColor = context.watch<UnivProvider>().univColor;
+
     return SafeArea(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
@@ -721,7 +727,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
-                backgroundColor: AppColors.schoolColor,
+                backgroundColor: univColor,
                 padding: EdgeInsets.symmetric(
                   horizontal: 14.w,
                   vertical: 8.h,
