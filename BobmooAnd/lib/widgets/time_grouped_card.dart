@@ -30,7 +30,7 @@ class TimeGroupedCard extends StatelessWidget {
             // 섹션 제목 (예: "점심")
             Row(
               children: [
-                //_getIconForMeal(title), // 위에서 만든 함수로 아이콘 가져오기
+                _getIconForMeal(title), // 위에서 만든 함수로 아이콘 가져오기
                 SizedBox(
                   width: 5.w,
                 ),
