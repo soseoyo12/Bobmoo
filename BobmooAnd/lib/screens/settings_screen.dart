@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -19,7 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   // initState에서 권한 상태를 가져오기 위해 Future 사용
   late Future<bool> _permissionFuture;
 
-  /// 사용 가능한 전체 식당 리스트
+  /// 설정에서 1x1 위젯에 대표 식당으로 사용 가능한 전체 식당 리스트
   /// TODO: 나중에 enum 같은걸 만들어서 대학별로 식당목록 관리하기
   final List<String> _cafeteriaList = ['생활관식당', '학생식당', '교직원식당'];
 
@@ -174,6 +175,51 @@ class _SettingsScreenState extends State<SettingsScreen>
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
         children: [
+          // --- 학교 설정 섹션 (추후 확장 가능) ---
+          _buildSectionTitle('학교 설정'),
+          SizedBox(height: 12.h),
+
+          // 학교 설정 카드
+          _buildSettingsCard(
+            onTap: () {
+              context.read<UnivProvider>().updateUniversity(null);
+              Navigator.pop(context);
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '내 학교 : ${context.watch<UnivProvider>().univName}',
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '학교설정',
+                      style: TextStyle(
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right,
+                      color: AppColors.greyTextColor,
+                      size: 24.w,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 32.h),
+
           // --- 위젯 설정 섹션 ---
           _buildSectionTitle('위젯 설정'),
           SizedBox(height: 12.h),
