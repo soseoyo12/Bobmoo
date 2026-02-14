@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UnivProvider extends ChangeNotifier {
   University? _selectedUniversity;
   bool _isInitialized = false;
+  Color? _lastUnivColor; // 마지막으로 선택했던 대학의 Color
 
   // Getter
   University? get selectedUniversity => _selectedUniversity;
@@ -20,6 +21,7 @@ class UnivProvider extends ChangeNotifier {
 
     if (jsonString != null) {
       _selectedUniversity = University.fromJson(jsonDecode(jsonString));
+      _lastUnivColor = _selectedUniversity!.hexToColor();
     }
 
     _isInitialized = true;
@@ -27,18 +29,28 @@ class UnivProvider extends ChangeNotifier {
   }
 
   // 2. 대학이 선택되었을 때 호출합니다.
-  Future<void> updateUniversity(University univ) async {
+  Future<void> updateUniversity(University? univ) async {
+    // 대학이 선택될 때마다 Color 저장 (null로 설정될 때도 이전 Color 유지)
+    if (univ != null) {
+      _lastUnivColor = univ.hexToColor();
+    }
+
     _selectedUniversity = univ;
 
     // 로컬 저장소에도 저장
     final prefs = locator<SharedPreferences>();
-    await prefs.setString('selectedUniv', jsonEncode(univ.toJson()));
+    if (univ != null) {
+      await prefs.setString('selectedUniv', jsonEncode(univ.toJson()));
+    } else {
+      await prefs.remove('selectedUniv');
+    }
 
     notifyListeners();
   }
 
-  University get university => _selectedUniversity!;
+  University? get university => _selectedUniversity;
 
-  Color get univColor => university.hexToColor();
-  String get univName => university.name;
+  Color get univColor =>
+      university?.hexToColor() ?? _lastUnivColor ?? Colors.blue;
+  String get univName => university?.name ?? "";
 }
