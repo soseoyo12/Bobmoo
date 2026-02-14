@@ -1,4 +1,5 @@
 import 'package:bobmoo/constants/app_colors.dart';
+import 'package:bobmoo/providers/univ_provider.dart';
 import 'package:bobmoo/services/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -93,7 +94,10 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
-  Future<void> _saveSelectedCafeteria(String cafeteriaName) async {
+  Future<void> _saveSelectedCafeteria(
+    String cafeteriaName,
+    Color univColor,
+  ) async {
     // SharedPreferences 대신 HomeWidget을 사용하여 데이터를 저장합니다.
     await HomeWidget.saveWidgetData<String>(
       'selectedCafeteriaName',
@@ -127,7 +131,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         ),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.schoolColor,
+        backgroundColor: univColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
         ),
@@ -138,10 +142,12 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final univColor = context.watch<UnivProvider>().univColor;
+
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 70.h,
-        backgroundColor: AppColors.schoolColor,
+        backgroundColor: univColor,
         elevation: 4.0,
         shadowColor: Colors.black,
         surfaceTintColor: Colors.transparent,
@@ -182,12 +188,12 @@ class _SettingsScreenState extends State<SettingsScreen>
                     Container(
                       padding: EdgeInsets.all(8.w),
                       decoration: BoxDecoration(
-                        color: AppColors.schoolColor.withValues(alpha: 0.1),
+                        color: univColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Icon(
                         Icons.restaurant_menu,
-                        color: AppColors.schoolColor,
+                        color: univColor,
                         size: 22.w,
                       ),
                     ),
@@ -225,7 +231,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   children: _cafeteriaList.map((cafeteria) {
                     final isSelected = _selectedCafeteria == cafeteria;
                     return GestureDetector(
-                      onTap: () => _saveSelectedCafeteria(cafeteria),
+                      onTap: () => _saveSelectedCafeteria(cafeteria, univColor),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: EdgeInsets.symmetric(
@@ -233,13 +239,11 @@ class _SettingsScreenState extends State<SettingsScreen>
                           vertical: 10.h,
                         ),
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.schoolColor
-                              : Colors.grey.shade100,
+                          color: isSelected ? univColor : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(
                             color: isSelected
-                                ? AppColors.schoolColor
+                                ? univColor
                                 : Colors.grey.shade300,
                             width: 1.5,
                           ),
@@ -275,7 +279,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                         height: 20.w,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: AppColors.schoolColor,
+                          color: univColor,
                         ),
                       ),
                       SizedBox(width: 16.w),
@@ -383,12 +387,12 @@ class _SettingsScreenState extends State<SettingsScreen>
                 Container(
                   padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
-                    color: AppColors.schoolColor.withValues(alpha: 0.1),
+                    color: univColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(
                     Icons.info_outline,
-                    color: AppColors.schoolColor,
+                    color: univColor,
                     size: 22.w,
                   ),
                 ),
